@@ -1,7 +1,9 @@
 package com.zdw.user.controller;
 
 
+import com.zdw.user.model.AddressDO;
 import com.zdw.user.service.AddressService;
+import com.zdw.util.JsonData;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
@@ -38,7 +40,8 @@ public class AddressController {
     public Object detail(
             @ApiParam(value = "地址id" ,required = true)
             @PathVariable("address_id") Long addressId){
-        return addressService.detail(addressId);
+        AddressDO detail = addressService.detail(addressId);
+        return JsonData.buildSuccess(detail);
     }
 
 }
