@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/zdw-common/zdw-common.iml" filepath="$PROJECT_DIR$/zdw-common/zdw-common.iml" />
+      <module fileurl="file://$PROJECT_DIR$/zdw-coupon-service/zdw-coupon-service.iml" filepath="$PROJECT_DIR$/zdw-coupon-service/zdw-coupon-service.iml" />
+      <module fileurl="file://$PROJECT_DIR$/zdw-gateway/zdw-gateway.iml" filepath="$PROJECT_DIR$/zdw-gateway/zdw-gateway.iml" />
+      <module fileurl="file://$PROJECT_DIR$/zdw-order-service/zdw-order-service.iml" filepath="$PROJECT_DIR$/zdw-order-service/zdw-order-service.iml" />
+      <module fileurl="file://$PROJECT_DIR$/zdw-product-service/zdw-product-service.iml" filepath="$PROJECT_DIR$/zdw-product-service/zdw-product-service.iml" />
+      <module fileurl="file://$PROJECT_DIR$/zdw-user-service/zdw-user-service.iml" filepath="$PROJECT_DIR$/zdw-user-service/zdw-user-service.iml" />
+    </modules>
+  </component>
+</project>

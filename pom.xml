@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>com.zdw</groupId>
+    <artifactId>zdw-0503-shop</artifactId>
+    <packaging>pom</packaging>
+    <version>1.0-SNAPSHOT</version>
+    <modules>
+        <module>zdw-common</module>
+        <module>zdw-product-service</module>
+        <module>zdw-user-service</module>
+        <module>zdw-order-service</module>
+        <module>zdw-coupon-service</module>
+        <module>zdw-gateway</module>
+    </modules>
+
+
+</project>
