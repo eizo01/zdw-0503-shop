@@ -1,16 +1,19 @@
 package com.zdw.config;
 
+
 import lombok.Data;
 import org.springframework.context.annotation.Bean;
+import org.springframework.http.HttpMethod;
 import org.springframework.stereotype.Component;
-import springfox.documentation.builders.ApiInfoBuilder;
-import springfox.documentation.builders.PathSelectors;
-import springfox.documentation.builders.RequestHandlerSelectors;
+import springfox.documentation.builders.*;
 import springfox.documentation.oas.annotations.EnableOpenApi;
-import springfox.documentation.service.ApiInfo;
-import springfox.documentation.service.Contact;
+import springfox.documentation.schema.ScalarType;
+import springfox.documentation.service.*;
 import springfox.documentation.spi.DocumentationType;
 import springfox.documentation.spring.web.plugins.Docket;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @Author: 曾德威
@@ -26,7 +29,6 @@ public class SwaggerConfiguration {
     @Bean
     public Docket webApiDoc() {
 
-
         return new Docket(DocumentationType.OAS_30)
                 .groupName("用户端接口文档")
                 .pathMapping("/")
@@ -39,16 +41,59 @@ public class SwaggerConfiguration {
                 .apis(RequestHandlerSelectors.basePackage("com.zdw"))
                 //正则匹配请求路径，并分配至当前分组
                 .paths(PathSelectors.ant("/api/**"))
-                .build();
+                .build()
+
+                //新版swagger3.0配置
+                .globalRequestParameters(getGlobalRequestParameters())
+                .globalResponses(HttpMethod.GET, getGlobalResponseMessage())
+                .globalResponses(HttpMethod.POST, getGlobalResponseMessage());
+
+
     }
 
 
     private ApiInfo apiInfo() {
         return new ApiInfoBuilder()
-                .title("1024电商平台")
+                .title("0305电商平台")
                 .description("微服务接口文档")
                 .contact(new Contact("曾德威", "https://javazdw.top", "2399492494@qq.com"))
                 .version("12")
                 .build();
     }
+
+    /**
+     * 生成全局通用参数, 支持配置多个响应参数
+     * @return
+     */
+    private List<RequestParameter> getGlobalRequestParameters() {
+        List<RequestParameter> parameters = new ArrayList<>();
+        parameters.add(new RequestParameterBuilder()
+                .name("token")
+                .description("登录令牌")
+                .in(ParameterType.HEADER)
+                .query(q -> q.model(m -> m.scalarModel(ScalarType.STRING)))
+                .required(false)
+                .build());
+
+//        parameters.add(new RequestParameterBuilder()
+//                .name("version")
+//                .description("版本号")
+//                .required(true)
+//                .in(ParameterType.HEADER)
+//                .query(q -> q.model(m -> m.scalarModel(ScalarType.STRING)))
+//                .required(false)
+//                .build());
+        return parameters;
+    }
+
+    /**
+     * 生成通用响应信息
+     * @return
+     */
+    private List<Response> getGlobalResponseMessage() {
+        List<Response> responseList = new ArrayList<>();
+        responseList.add(new ResponseBuilder().code("4xx").description("请求错误，根据code和msg检查").build());
+        return responseList;
+    }
+
 }

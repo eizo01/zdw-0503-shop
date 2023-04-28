@@ -23,6 +23,19 @@
 
 # virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml
 hs_err_pid*
+/target
+/.idea
+/out
+*.iml
+*.class
 
 
-
+#zdw-common/src/main/resources/
+#zdw-common/src/test/
+#zdw-common/target/generated-sources/
+#zdw-coupon-service/src/
+#zdw-gateway/src/
+#zdw-order-service/src/
+#zdw-product-service/src/
+#zdw-user-service/src/test/
+#zdw-user-service/target/generated-sources/
