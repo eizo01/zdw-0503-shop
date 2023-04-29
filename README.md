@@ -12,7 +12,10 @@ zdw-user-service --- 9001
 
  
  UI接口文档
-user服务： http://localhost:9001/swagger-ui/index.html#/
+user服务接口文档： http://localhost:9001/swagger-ui/index.html#/
+
+1、验证码接口测试：http://localhost:9001/api/user/v1/getCaptcha  --GET
+2、根据id查询地址信息： http://localhost:9001/api/adress/v1/find/1 -- POST
 
 
 
@@ -20,10 +23,13 @@ user服务： http://localhost:9001/swagger-ui/index.html#/
 
 
 
+#### 功能介绍
 
-#### 安装教程
+1.   用户微服务注册需求介绍
 
-1.  xxxx
+
+
+
 2.  xxxx
 3.  xxxx
 
