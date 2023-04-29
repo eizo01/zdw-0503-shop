@@ -33,7 +33,8 @@ user服务接口文档： http://localhost:9001/swagger-ui/index.html#/
 2.  xxxx
 3.  xxxx
 
-#### 使用说明
+#### 服务器 110.40.169.113
+部署redis ：密码是123456 接口8000 为了防止别人挖矿
 
 
 
