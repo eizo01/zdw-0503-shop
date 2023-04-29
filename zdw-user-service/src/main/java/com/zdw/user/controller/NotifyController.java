@@ -81,7 +81,7 @@ public class NotifyController {
      *
      * @param to
      * @param captcha
-     * @return
+     * @deprecated 获取生成的验证码，然后根据邮箱地址发送验证码给用户
      */
     @ApiOperation("发送邮箱注册验证码")
     @GetMapping("send_code")
