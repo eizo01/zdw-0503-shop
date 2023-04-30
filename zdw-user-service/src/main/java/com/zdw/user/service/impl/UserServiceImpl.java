@@ -71,7 +71,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, UserDO> implements 
         userDO.setCreateTime(new Date());
         userDO.setSlogan("人生需要动态规划，学习需要贪心算法");
 
-        //设置密码 生成秘钥 盐
+        //设置密码 8位随机长度生成秘钥 盐
         userDO.setSecret("$1$" + CommonUtil.getStringNumRandom(8));
 
         //密码+盐处理
