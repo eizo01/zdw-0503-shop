@@ -66,7 +66,7 @@ public class NotifyServiceImpl implements NotifyService {
                 log.info("重复发送验证码,时间间隔:{} 秒",(CommonUtil.getCurrentTimestamp()-time)/1000);
             }
         }
-
+        // 拼接验证码 222333_9990211210
         String code = CommonUtil.getRandomCode(6);
         String value = code + "_" + CommonUtil.getCurrentTimestamp();// 验证码和时间戳拼接成为value
         redisTemplate.opsForValue().set(cacheKey,value,CODE_EXPIRED, TimeUnit.MILLISECONDS);
@@ -84,5 +84,24 @@ public class NotifyServiceImpl implements NotifyService {
         }
 
         return JsonData.buildResult(BizCodeEnum.CODE_TO_ERROR);
+    }
+
+    @Override
+    public boolean checkCode(SendCodeEnum sendCodeEnum, String to, String code) {
+        String cacheKey = String.format(CacheKey.CHECK_CODE_KEY,sendCodeEnum.name(),to);
+
+        String cacheValue = redisTemplate.opsForValue().get(cacheKey);
+        if(StringUtils.isNotBlank(cacheValue)){
+            // 拿到前面一位
+            String cacheCode = cacheValue.split("_")[0];
+            if(cacheCode.equals(code)){
+                //删除验证码
+                redisTemplate.delete(cacheKey);
+                return true;
+            }
+
+        }
+        return false;
+
     }
 }
