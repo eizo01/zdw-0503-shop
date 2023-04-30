@@ -1,5 +1,7 @@
 package com.zdw.user.service;
 
+import org.springframework.web.multipart.MultipartFile;
+
 import java.io.InputStream;
 
 /**
@@ -12,4 +14,6 @@ import java.io.InputStream;
 public interface FileService {
 
     public  String uploadImage(InputStream inputStream, String fileName, String savePath, String folder);
+
+    public String uploadImage(MultipartFile file) ;
 }
