@@ -3,13 +3,16 @@ package com.zdw.user.service.impl;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.zdw.enums.BizCodeEnum;
 import com.zdw.enums.SendCodeEnum;
+import com.zdw.model.LoginUser;
 import com.zdw.user.model.UserDO;
 import com.zdw.user.mapper.UserMapper;
+import com.zdw.user.request.UserLoginRequest;
 import com.zdw.user.request.UserRegisterRequest;
 import com.zdw.user.service.NotifyService;
 import com.zdw.user.service.UserService;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.zdw.util.CommonUtil;
+import com.zdw.util.JWTUtil;
 import com.zdw.util.JsonData;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.codec.digest.Md5Crypt;
@@ -71,7 +74,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, UserDO> implements 
         userDO.setCreateTime(new Date());
         userDO.setSlogan("人生需要动态规划，学习需要贪心算法");
 
-        //设置密码 8位随机长度生成秘钥 盐
+        //设置密码 8位随机长度生成秘钥 盐 每一位账号的盐都是不一样的
         userDO.setSecret("$1$" + CommonUtil.getStringNumRandom(8));
 
         //密码+盐处理
@@ -96,6 +99,40 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, UserDO> implements 
             return JsonData.buildResult(BizCodeEnum.ACCOUNT_REPEAT);
         }
 
+    }
+
+    /**
+     * 1、根据Mail去找有没这记录
+     *      * 2、有的话，则用秘钥+用户传递的明文密码，进行加密，再和数据库的密文进行匹配
+     *      *
+     *      * @param loginRequest
+     * @return
+     */
+    @Override
+    public JsonData login(UserLoginRequest loginRequest) {
+        List<UserDO> userDOS = userMapper.selectList(new QueryWrapper<UserDO>().eq("mail", loginRequest.getMail()));
+
+        if (userDOS != null && userDOS.size() == 1){
+            // 注册成功
+            UserDO userDO = userDOS.get(0);
+
+            String cryptPwd = Md5Crypt.md5Crypt(loginRequest.getPwd().getBytes(), userDO.getSecret());
+            if (cryptPwd.equals(userDO.getPwd())){
+                //TODO 登录成功 生成token
+                //生成token令牌
+                LoginUser userDTO = new LoginUser();
+                BeanUtils.copyProperties(userDO, userDTO);
+                String token = JWTUtil.geneJsonWebToken(userDTO);
+                return JsonData.buildSuccess(token);
+
+            }else{
+                return JsonData.buildCodeAndMsg(BizCodeEnum.ACCOUNT_PWD_ERROR.getCode(),BizCodeEnum.ACCOUNT_PWD_ERROR.getMessage());
+
+            }
+        }else{
+            //注册未成功
+            return JsonData.buildResult(BizCodeEnum.ACCOUNT_UNREGISTER);
+        }
     }
 
     /**

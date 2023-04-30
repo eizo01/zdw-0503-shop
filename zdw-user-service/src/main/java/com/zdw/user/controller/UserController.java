@@ -2,17 +2,17 @@ package com.zdw.user.controller;
 
 
 import com.zdw.enums.BizCodeEnum;
+import com.zdw.user.request.UserLoginRequest;
+import com.zdw.user.request.UserRegisterRequest;
 import com.zdw.user.service.FileService;
+import com.zdw.user.service.UserService;
 import com.zdw.util.JsonData;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.*;
 
-import org.springframework.web.bind.annotation.RequestPart;
-import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 /**
@@ -29,7 +29,8 @@ import org.springframework.web.multipart.MultipartFile;
 public class UserController {
     @Autowired
     private FileService fileService;
-
+    @Autowired
+    private UserService userService;
 
 
     /**
@@ -51,6 +52,37 @@ public class UserController {
 
         return result!=null? JsonData.buildSuccess(result):JsonData.buildResult(BizCodeEnum.FILE_UPLOAD_USER_IMG_FAIL);
     }
+
+
+
+    /**
+     *  用户注册
+     * @param registerRequest
+     * @return
+     */
+    @ApiOperation("用户注册")
+    @PostMapping("register")
+    public JsonData register(@ApiParam("用户注册对象") @RequestBody UserRegisterRequest registerRequest){
+
+        JsonData jsonData = userService.register(registerRequest);
+        return jsonData;
+    }
+
+    /**
+     * 用户登录
+     * @return
+     */
+    @ApiOperation("用户登录")
+    @PostMapping("login")
+    public JsonData login(@ApiParam("用户登录对象") @RequestBody UserLoginRequest userLoginRequest){
+
+
+        JsonData jsonData = userService.login(userLoginRequest);
+
+        return jsonData;
+    }
+
+
 
 }
 

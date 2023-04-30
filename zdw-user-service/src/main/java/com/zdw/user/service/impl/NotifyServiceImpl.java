@@ -35,7 +35,7 @@ public class NotifyServiceImpl implements NotifyService {
     /**
      * 内容
      */
-    private static final String CONTENT = "您的验证码是%s，有效时间是60秒，请保管好验证码，请勿让别人获取";
+    private static final String CONTENT = "您的验证码是%s，有效时间是120秒，请保管好验证码，请勿让别人获取";
     /**
      * 验证码10分钟有效 生产用60s
      */

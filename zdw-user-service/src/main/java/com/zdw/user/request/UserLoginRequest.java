@@ -19,7 +19,7 @@ public class UserLoginRequest {
 
 
 
-    @ApiModelProperty(value = "邮箱", example = "794666918@qq.com")
+    @ApiModelProperty(value = "邮箱", example = "2399492494@qq.com")
     private String mail;
 
     @ApiModelProperty(value = "密码", example = "123456")
