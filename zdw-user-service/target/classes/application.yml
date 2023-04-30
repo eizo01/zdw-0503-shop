@@ -46,3 +46,10 @@ mybatis-plus:
 logging:
   level:
     root: INFO
+
+qiniu:
+  oss:
+    access_key: b3ulp1lDY4afMJSQswneCo67lw5Z4klBk-3Rj4WH
+    secret_key: SRfDrmvBV3he-fFuLUQ0wogBemm3FPZbemlBTNOW
+    bucket_name: blog-zdw
+    upload_url: Http://zdwtop.cn
