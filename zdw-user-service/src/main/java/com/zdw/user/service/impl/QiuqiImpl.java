@@ -101,7 +101,7 @@ public class QiuqiImpl implements FileService {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        return "sucess";
+        return null;
     }
 
     /**
@@ -157,5 +157,11 @@ public class QiuqiImpl implements FileService {
         return null;
 
     }
+
+
+    //todo  分块上传
+
+
+
 
 }
