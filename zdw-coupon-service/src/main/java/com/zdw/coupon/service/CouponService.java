@@ -2,6 +2,8 @@ package com.zdw.coupon.service;
 
 import com.zdw.coupon.model.CouponDO;
 import com.baomidou.mybatisplus.extension.service.IService;
+import com.zdw.enums.CouponCategoryEnum;
+import com.zdw.util.JsonData;
 
 import java.util.Map;
 
@@ -21,4 +23,6 @@ public interface CouponService extends IService<CouponDO> {
      * @return
      */
     Map<String,Object> pageCouponActivity(int page,int size);
+
+    JsonData addCoupon(long couponId, CouponCategoryEnum category);
 }

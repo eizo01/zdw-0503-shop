@@ -12,5 +12,11 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
  * @since 2023-05-01
  */
 public interface CouponMapper extends BaseMapper<CouponDO> {
-
+    /**
+     * 扣减库存
+     * @param couponId
+     * @param stock
+     * @return
+     */
+    int reduceStock(long couponId, Integer stock);
 }
