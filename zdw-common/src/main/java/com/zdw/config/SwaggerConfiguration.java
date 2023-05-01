@@ -51,33 +51,6 @@ public class SwaggerConfiguration {
 
     }
 
-    /**
-     * 对管理端的接口文档
-     *
-     * @return
-     */
-    @Bean
-    public Docket adminApiDoc() {
-
-        return new Docket(DocumentationType.OAS_30)
-                .groupName("管理端接口文档")
-                .pathMapping("/")
-
-                //定义是否开启Swagger，false是关闭，可以通过变量去控制，线上关闭
-                .enable(true)
-
-                //配置文档的元信息
-                .apiInfo(apiInfo())
-                .select()
-                .apis(RequestHandlerSelectors.basePackage("com.zdw"))
-                //正则匹配请求路径，并分配到当前项目组
-                .paths(PathSelectors.ant("/admin/**"))
-                .build();
-    }
-
-
-
-
 
     private ApiInfo apiInfo() {
         return new ApiInfoBuilder()
