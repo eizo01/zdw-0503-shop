@@ -19,9 +19,9 @@ user服务接口文档： http://localhost:9001/swagger-ui/index.html#/
 3、用户图片上传： http://localhost:9001/api/user/v1/upload --post
 4、用户注册： /api/user/v1/register --post
 5、查询个人信息：Http://localhost:9001/api/user/v1/detail
-6、模块收货地址: 
+6、收货地址: 
 
-
+coupon服务接口文档： http://localhost:9002/swagger-ui/index.html#/  
 
 
 
