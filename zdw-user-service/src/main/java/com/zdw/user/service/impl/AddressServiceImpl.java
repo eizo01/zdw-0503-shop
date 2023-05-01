@@ -17,6 +17,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.Date;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * <p>
@@ -34,10 +35,12 @@ public class AddressServiceImpl extends ServiceImpl<AddressMapper, AddressDO> im
     private  AddressMapper addressMapper;
     @Override
     public AddressVO detail(Long id) {
-
+        // 拿到当前用户id，防止水平越权
         LoginUser loginUser = LoginInterceptor.threadLocal.get();
 
-        AddressDO addressDO = addressMapper.selectOne(new QueryWrapper<AddressDO>().eq("id",id).eq("user_id",loginUser.getId()));
+        AddressDO addressDO = addressMapper.selectOne(new QueryWrapper<AddressDO>().eq("id",id)
+                // 这里就是处理水平越权
+                .eq("user_id",loginUser.getId()));
 
         if(addressDO == null){
             return null;
@@ -86,11 +89,25 @@ public class AddressServiceImpl extends ServiceImpl<AddressMapper, AddressDO> im
 
     @Override
     public int del(int addressId) {
-        return 0;
+        LoginUser loginUser = LoginInterceptor.threadLocal.get();
+        int rows = addressMapper.delete(new QueryWrapper<AddressDO>().eq("id", addressId).eq("user_id", loginUser.getId()));
+        return rows;
     }
 
     @Override
     public List<AddressVO> listUserAllAddress() {
-        return null;
+
+        LoginUser loginUser = LoginInterceptor.threadLocal.get();
+        // 查询所有的收获地址
+        List<AddressDO> list = addressMapper.selectList(new QueryWrapper<AddressDO>().eq("user_id",loginUser.getId()));
+        // 利用stream封装一个list 存储vo，不直接返回do
+        List<AddressVO> addressVOList =  list.stream().map(obj->{
+            AddressVO addressVO = new AddressVO();
+            BeanUtils.copyProperties(obj,addressVO);
+            return addressVO;
+        }).collect(Collectors.toList());
+
+        return addressVOList;
+
     }
 }
