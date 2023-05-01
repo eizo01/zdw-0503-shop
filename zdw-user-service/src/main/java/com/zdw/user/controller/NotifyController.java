@@ -1,7 +1,7 @@
 package com.zdw.user.controller;
 
 import com.google.code.kaptcha.Producer;
-import com.sun.xml.internal.bind.v2.TODO;
+
 import com.zdw.enums.BizCodeEnum;
 import com.zdw.enums.SendCodeEnum;
 import com.zdw.user.service.NotifyService;
@@ -9,7 +9,7 @@ import com.zdw.util.CommonUtil;
 import com.zdw.util.JsonData;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiParam;
+
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.StringRedisTemplate;

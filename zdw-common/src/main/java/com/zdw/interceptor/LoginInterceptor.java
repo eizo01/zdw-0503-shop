@@ -1,4 +1,4 @@
-package com.zdw.user.interceptor;
+package com.zdw.interceptor;
 
 import com.zdw.enums.BizCodeEnum;
 import com.zdw.model.LoginUser;
@@ -68,9 +68,7 @@ public class LoginInterceptor implements HandlerInterceptor {
 
             //通过attribute传递用户信息
             //request.setAttribute("loginUser",loginUser);
-
             //通过threadLocal传递用户登录信息
-
             threadLocal.set(loginUser);
 
             return true;
@@ -105,6 +103,6 @@ public class LoginInterceptor implements HandlerInterceptor {
      */
     @Override
     public void afterCompletion(HttpServletRequest request, HttpServletResponse response, Object handler, Exception ex) throws Exception {
-
+        threadLocal.remove();
     }
 }
