@@ -6,6 +6,7 @@ import com.zdw.user.request.UserLoginRequest;
 import com.zdw.user.request.UserRegisterRequest;
 import com.zdw.user.service.FileService;
 import com.zdw.user.service.UserService;
+import com.zdw.user.vo.UserVO;
 import com.zdw.util.JsonData;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -82,6 +83,18 @@ public class UserController {
         return jsonData;
     }
 
+    /**
+     * 用户个人信息查询
+     * @return
+     */
+    @ApiOperation("个人信息查询")
+    @GetMapping("detail")
+    public JsonData detail(){
+
+        UserVO userVO = userService.findUserDetail();
+
+        return JsonData.buildSuccess(userVO);
+    }
 
 
 }

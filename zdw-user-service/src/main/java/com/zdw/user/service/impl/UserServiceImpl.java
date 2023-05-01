@@ -3,6 +3,7 @@ package com.zdw.user.service.impl;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.zdw.enums.BizCodeEnum;
 import com.zdw.enums.SendCodeEnum;
+import com.zdw.interceptor.LoginInterceptor;
 import com.zdw.model.LoginUser;
 import com.zdw.user.model.UserDO;
 import com.zdw.user.mapper.UserMapper;
@@ -11,6 +12,7 @@ import com.zdw.user.request.UserRegisterRequest;
 import com.zdw.user.service.NotifyService;
 import com.zdw.user.service.UserService;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.zdw.user.vo.UserVO;
 import com.zdw.util.CommonUtil;
 import com.zdw.util.JWTUtil;
 import com.zdw.util.JsonData;
@@ -160,7 +162,18 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, UserDO> implements 
 
     }
 
+    @Override
+    public UserVO findUserDetail() {
 
+        LoginUser loginUser = LoginInterceptor.threadLocal.get();
+
+        Long id = loginUser.getId();
+
+        UserDO userDO = userMapper.selectOne(new QueryWrapper<UserDO>().eq("id", id));
+        UserVO userVO = new UserVO();
+        BeanUtils.copyProperties(userDO,userVO);
+        return userVO;
+    }
 }
 
 

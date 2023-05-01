@@ -21,7 +21,7 @@ public class AddressAddReqeust {
     /**
      * 收发货人姓名
      */
-    @ApiModelProperty(value = "收发货人姓名",example = "小滴课堂-隔壁老王")
+    @ApiModelProperty(value = "收发货人姓名",example = "隔壁老王")
     @JsonProperty("receive_name")
     private String receiveName;
 

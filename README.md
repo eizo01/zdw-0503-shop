@@ -1,7 +1,7 @@
 # zdw-0503-shop
 
 #### 介绍
-开源项目-一个基础项目可以适配互联网大多项目，只要是有关于商品和拉新的
+开源项目-一个基础项目可以适配互联网大多项目，只要是有关于商品和拉新的活动项目模块
 
 #### 项目备注
 
@@ -17,8 +17,9 @@ user服务接口文档： http://localhost:9001/swagger-ui/index.html#/
 1、验证码接口测试：http://localhost:9001/api/user/v1/getCaptcha  --GET
 2、根据id查询地址信息： http://localhost:9001/api/adress/v1/find/1 -- POST  
 3、用户图片上传： http://localhost:9001/api/user/v1/upload --post
-4、用户注册：
-
+4、用户注册： /api/user/v1/register --post
+5、查询个人信息：Http://localhost:9001/api/user/v1/detail
+6、模块收货地址: 
 
 
 
@@ -35,6 +36,7 @@ user服务接口文档： http://localhost:9001/swagger-ui/index.html#/
 
 怎么拿到user对应的信息？首先jwt存储了一份，通过解析jwt就可以，其次内部使用ThreadLocal，controller层使用LoginUser loginUser = LoginInterceptor.threadLocal.get();
 
+越权攻击：
 2.  xxxx
 3.  xxxx
 
