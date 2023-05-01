@@ -33,6 +33,8 @@ user服务接口文档： http://localhost:9001/swagger-ui/index.html#/
 
 
 
+怎么拿到user对应的信息？首先jwt存储了一份，通过解析jwt就可以，其次内部使用ThreadLocal，controller层使用LoginUser loginUser = LoginInterceptor.threadLocal.get();
+
 2.  xxxx
 3.  xxxx
 

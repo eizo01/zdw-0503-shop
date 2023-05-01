@@ -69,6 +69,7 @@ public class JWTUtil {
 
             final Claims claims = Jwts.parser()
                     .setSigningKey(SECRET)
+                    // 去掉前缀
                     .parseClaimsJws(token.replace(TOKEN_PREFIX, "")).getBody();
 
             return claims;
