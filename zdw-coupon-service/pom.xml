@@ -10,6 +10,12 @@
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>zdw-coupon-service</artifactId>
-
+    <dependencies>
+        <dependency>
+            <groupId>com.zdw</groupId>
+            <artifactId>zdw-common</artifactId>
+            <version>1.0-SNAPSHOT</version>
+        </dependency>
+    </dependencies>
 
 </project>
