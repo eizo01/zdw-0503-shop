@@ -1,9 +1,9 @@
 # zdw-0503-shop
 
-#### 介绍
+#### 一、介绍
 开源项目-一个基础项目可以适配互联网大多项目，只要是有关于商品和拉新的活动项目模块
 
-#### 项目备注
+#### 二、项目备注
 
 服务端口
 --- --------
@@ -11,14 +11,14 @@ zdw-user-service --- 9001
 zdw-coupon-service --- 9002
 
  
- UI接口文档
+#### 三、 UI接口文档  
 user服务接口文档： http://localhost:9001/swagger-ui/index.html#/  
-  测试账号：2399492494@qq.com           密码：12345
-1、验证码接口测试：http://localhost:9001/api/user/v1/getCaptcha  --GET
-2、根据id查询地址信息： http://localhost:9001/api/adress/v1/find/1 -- POST  
-3、用户图片上传： http://localhost:9001/api/user/v1/upload --post
-4、用户注册： /api/user/v1/register --post
-5、查询个人信息：Http://localhost:9001/api/user/v1/detail
+  测试账号：2399492494@qq.com            密码：12345
+1、验证码接口测试：http://localhost:9001/api/user/v1/getCaptcha  --GET  
+2、根据id查询地址信息： http://localhost:9001/api/adress/v1/find/1 -- POST    
+3、用户图片上传： http://localhost:9001/api/user/v1/upload --post  
+4、用户注册： /api/user/v1/register --post  
+5、查询个人信息：Http://localhost:9001/api/user/v1/detail  
 6、收货地址: 
 
 coupon服务接口文档： http://localhost:9002/swagger-ui/index.html#/  
@@ -27,14 +27,15 @@ coupon服务接口文档： http://localhost:9002/swagger-ui/index.html#/
 
 
 
-#### 功能介绍
+#### 四、功能介绍
 
-1.   用户微服务注册需求介绍
-功能亮点： 验证码这块 图片上传可以讲分块上传，还可以讲下我们用生成一个唯一的、具有时间戳信息的文件名，从而避免多个用户上传相同名称的文件时发生冲突。同时，使用日期作为路径可以方便地按照日期检索文件，方便管理和查找。
+1. 用户微服务注册需求介绍  
+功能亮点： 验证码这块 图片上传可以讲分块上传，还可以讲下我们用生成一个唯一的、具有时间戳信息的文件名，从而避免多个用户上传相同名称的文件时发生冲突。同时，使用日期作为路径可以方便地按照日期检索文件，方便管理和查找。  
 
 
 
-怎么拿到user对应的信息？首先jwt存储了一份，通过解析jwt就可以，其次内部使用ThreadLocal，controller层使用LoginUser loginUser = LoginInterceptor.threadLocal.get();
+怎么拿到user对应的信息？  
+首先jwt存储了一份，通过解析jwt就可以，其次内部使用ThreadLocal，controller层使用LoginUser loginUser = LoginInterceptor.threadLocal.get();
 
 越权攻击：
 * 防范水平越权  
@@ -50,13 +51,60 @@ coupon服务接口文档： http://localhost:9002/swagger-ui/index.html#/
 ```
 项目是面向c端的，所以我们要解决水平越权的就可以了
 
-2.  xxxx
-3.  xxxx
+2.  Jmeter压测扣超发优惠券问题暴露    
+   * 扣减存储为负数，超发优惠券   
+   * 造成资损  
+   原sql  
+    ```sql
+      update coupon set stock = stock - 1 where id = #{couponId} 
+   ```
+   ```sql
+   update coupon set stock = stock - 1 where id = #{couponId} and stock > 0
+```
+解决超发问题
+优惠卷业务只需要扣一条  
+* 如果数据库不止扣损一条的话，用这个解决
+直接数据库更新扣减 （重点）
+```sql
+update coupon set stock=stock - #{num} where id = #{couponId} and stock>0
+//测试如果num大于已有库存，则会变负数
+update coupon set stock=stock - #{num} where id = #{couponId} and （stock - #{num})>=0
+或者
+update coupon set stock=stock - #{num} where id = #{couponId} and stock >= #{num} 
+//修复了负数问题
 
-#### 服务器 110.40.169.113
+```
+ 
+
+#### 五、服务器 
+地址110.40.169.113
 部署redis ：密码是123456 接口8000 为了防止别人挖矿
 
+压测介绍
+讲解jmeter解压文件里面的各个目录，文件等
+- 目录
 
+  ```
+  bin:核心可执行文件，包含配置
+          jmeter.bat: windows启动文件(window系统一定要配置显示文件拓展名)
+          jmeter: mac或者linux启动文件
+          jmeter-server：mac或者Liunx分布式压测使用的启动文件
+          jmeter-server.bat：window分布式压测使用的启动文件
+          jmeter.properties: 核心配置文件   
+  extras：插件拓展的包
+  
+  lib:核心的依赖包
+  ```
+
+- Jmeter语言版本中英文切换
+
+  - 控制台修改 menu -> options -> choose language
+
+- 配置文件修改
+
+  - bin目录 -> jmeter.properties
+  - 默认 #language=en
+  - 改为 language=zh_CN
 
 #### 参与贡献
 

@@ -8,9 +8,9 @@ E:\有道云笔记\zdw-0503-shop\zdw-user-service\src\main\java\com\zdw\user\con
 E:\有道云笔记\zdw-0503-shop\zdw-user-service\src\main\java\com\zdw\user\service\NotifyService.java
 E:\有道云笔记\zdw-0503-shop\zdw-user-service\src\main\java\com\zdw\user\service\MailService.java
 E:\有道云笔记\zdw-0503-shop\zdw-user-service\src\main\java\com\zdw\user\service\impl\UserServiceImpl.java
+E:\有道云笔记\zdw-0503-shop\zdw-user-service\src\main\java\com\zdw\user\vo\AddressVO.java
 E:\有道云笔记\zdw-0503-shop\zdw-user-service\src\main\java\com\zdw\user\request\UserLoginRequest.java
 E:\有道云笔记\zdw-0503-shop\zdw-user-service\src\main\java\com\zdw\user\UserApplication.java
-E:\有道云笔记\zdw-0503-shop\zdw-user-service\src\main\java\com\zdw\user\interceptor\LoginInterceptor.java
 E:\有道云笔记\zdw-0503-shop\zdw-user-service\src\main\java\com\zdw\user\service\impl\NotifyServiceImpl.java
 E:\有道云笔记\zdw-0503-shop\zdw-user-service\src\main\java\com\zdw\user\request\AddressAddReqeust.java
 E:\有道云笔记\zdw-0503-shop\zdw-user-service\src\main\java\com\zdw\user\controller\AddressController.java
@@ -21,6 +21,7 @@ E:\有道云笔记\zdw-0503-shop\zdw-user-service\src\main\java\com\zdw\user\con
 E:\有道云笔记\zdw-0503-shop\zdw-user-service\src\main\java\com\zdw\user\mapper\UserMapper.java
 E:\有道云笔记\zdw-0503-shop\zdw-user-service\src\main\java\com\zdw\user\service\FileService.java
 E:\有道云笔记\zdw-0503-shop\zdw-user-service\src\main\java\com\zdw\user\service\impl\MailServiceImpl.java
+E:\有道云笔记\zdw-0503-shop\zdw-user-service\src\main\java\com\zdw\user\vo\UserVO.java
 E:\有道云笔记\zdw-0503-shop\zdw-user-service\src\main\java\com\zdw\user\model\UserDO.java
 E:\有道云笔记\zdw-0503-shop\zdw-user-service\src\main\java\com\zdw\user\request\UserRegisterRequest.java
 E:\有道云笔记\zdw-0503-shop\zdw-user-service\src\main\java\com\zdw\user\request\NewUserCouponRequest.java

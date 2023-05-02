@@ -1,5 +1,8 @@
 com\zdw\enums\BizCodeEnum.class
+com\zdw\enums\CouponPublishEnum.class
+com\zdw\enums\CouponStateEnum.class
 com\zdw\constant\CacheKey.class
+com\zdw\config\MybatisPlusPageConfig.class
 com\zdw\model\LoginUser.class
 com\zdw\exception\BizException.class
 com\zdw\util\JsonData.class
@@ -8,8 +11,11 @@ com\zdw\model\OrderMessage.class
 com\zdw\util\CommonUtil.class
 com\zdw\exception\CustomExceptionHandler.class
 com\zdw\util\JWTUtil.class
+com\zdw\interceptor\LoginInterceptor.class
+com\zdw\enums\CouponCategoryEnum.class
 com\zdw\model\ProductMessage.class
 com\zdw\enums\SendCodeEnum.class
+com\zdw\enums\AddressStatusEnum.class
 com\zdw\util\CheckUtil.class
 com\zdw\model\CouponRecordMessage.class
 com\zdw\config\SwaggerConfiguration.class

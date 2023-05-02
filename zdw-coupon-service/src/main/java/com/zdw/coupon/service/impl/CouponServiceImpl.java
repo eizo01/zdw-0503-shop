@@ -9,7 +9,7 @@ import com.zdw.coupon.mapper.CouponMapper;
 import com.zdw.coupon.model.CouponRecordDO;
 import com.zdw.coupon.service.CouponService;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.zdw.coupon.vo.vo.CouponVO;
+import com.zdw.coupon.vo.CouponVO;
 import com.zdw.enums.BizCodeEnum;
 import com.zdw.enums.CouponCategoryEnum;
 import com.zdw.enums.CouponPublishEnum;
@@ -85,13 +85,15 @@ public class CouponServiceImpl extends ServiceImpl<CouponMapper, CouponDO> imple
         LoginUser loginUser = LoginInterceptor.threadLocal.get();
 
         CouponDO couponDO = couponMapper.selectOne(new QueryWrapper<CouponDO>()
-            .eq("id",couponId)
-            .eq("category",category.name())
-             .eq("publish",CouponPublishEnum.PUBLISH.name())
-        );
+                .eq("id",couponId)
+                .eq("category",category.name()));
+
+
         //优惠券是否可以领取
-        this.checkCoupon(couponDO, couponId);
-        //构建领卷记录
+        this.checkCoupon(couponDO,loginUser.getId());
+
+
+        //构建领劵记录
         CouponRecordDO couponRecordDO = new CouponRecordDO();
         BeanUtils.copyProperties(couponDO,couponRecordDO);
         couponRecordDO.setCreateTime(new Date());
@@ -100,17 +102,19 @@ public class CouponServiceImpl extends ServiceImpl<CouponMapper, CouponDO> imple
         couponRecordDO.setUserName(loginUser.getName());
         couponRecordDO.setCouponId(couponId);
         couponRecordDO.setId(null);
-        //TODO 高并发下扣减劵库存，采用乐观锁,当前stock做版本号,延伸多种防止超卖的问题,一次只能领取1张，
 
-        int rows = couponMapper.reduceStock(couponId,couponDO.getStock());
-        if (rows == 1) {
+
+        //扣减库存  TODO
+        int rows = couponMapper.reduceStock(couponId);
+
+        if(rows==1){
             //库存扣减成功才保存记录
             couponRecordMapper.insert(couponRecordDO);
 
-        } else {
-            log.warn("发放优惠券失败:{},用户:{}", couponDO, loginUser);
+        }else {
+            log.warn("发放优惠券失败:{},用户:{}",couponDO,loginUser);
 
-            throw new BizException(BizCodeEnum.COUPON_NO_STOCK);
+            throw  new BizException(BizCodeEnum.COUPON_NO_STOCK);
         }
 
         return JsonData.buildSuccess();
@@ -138,28 +142,33 @@ public class CouponServiceImpl extends ServiceImpl<CouponMapper, CouponDO> imple
         if(couponDO==null){
             throw new BizException(BizCodeEnum.COUPON_NO_EXITS);
         }
-        // 判断库存是否足够
-        if (couponDO.getStock() <= 0){
+
+        //库存是否足够
+        if(couponDO.getStock()<=0){
             throw new BizException(BizCodeEnum.COUPON_NO_STOCK);
         }
-        // 不在发布状态
-        if (!couponDO.getPublish().equals(CouponPublishEnum.PUBLISH.name())){
-            throw  new BizException(BizCodeEnum.COUPON_GET_FAIL);
-        }
-        //判断是否超时
-        long time = CommonUtil.getCurrentTimestamp();
 
+        //判断是否是否发布状态
+        if(!couponDO.getPublish().equals(CouponPublishEnum.PUBLISH.name())){
+            throw new BizException(BizCodeEnum.COUPON_GET_FAIL);
+        }
+
+        //是否在领取时间范围
+        long time = CommonUtil.getCurrentTimestamp();
         long start = couponDO.getStartTime().getTime();
         long end = couponDO.getEndTime().getTime();
-        if (time < start || time > end){
+        if(time<start || time>end){
             throw new BizException(BizCodeEnum.COUPON_OUT_OF_TIME);
         }
-        // 用户是否超过每人限制张数(在领取记录中不可以再领取)
-        Integer recordNum = couponRecordMapper.selectCount(new QueryWrapper<CouponRecordDO>()
-                .eq("coupon_id", couponDO.getId()).eq("user_id", userId)
-        );
-        if (recordNum >= couponDO.getUserLimit()){
-            throw  new BizException(BizCodeEnum.COUPON_OUT_OF_LIMIT);
+
+        //用户是否超过限制
+        int recordNum =  couponRecordMapper.selectCount(new QueryWrapper<CouponRecordDO>()
+                .eq("coupon_id",couponDO.getId())
+                .eq("user_id",userId));
+
+        if(recordNum >= couponDO.getUserLimit()){
+            throw new BizException(BizCodeEnum.COUPON_OUT_OF_LIMIT);
         }
+
     }
 }

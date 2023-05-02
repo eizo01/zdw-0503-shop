@@ -21,6 +21,10 @@ public class CacheKey {
      * 提交表单的token key
      */
     public static final String SUBMIT_ORDER_TOKEN_KEY = "order:submit:%s";
+    /**
+     * jwt-token
+     */
+    public static final String Jwt = "jwt:%s";
 
 
 }

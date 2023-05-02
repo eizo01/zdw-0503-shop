@@ -2,6 +2,7 @@ package com.zdw.coupon.mapper;
 
 import com.zdw.coupon.model.CouponDO;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import org.apache.ibatis.annotations.Param;
 
 /**
  * <p>
@@ -15,8 +16,7 @@ public interface CouponMapper extends BaseMapper<CouponDO> {
     /**
      * 扣减库存
      * @param couponId
-     * @param stock
      * @return
      */
-    int reduceStock(long couponId, Integer stock);
+    int reduceStock(@Param("couponId")long couponId);
 }

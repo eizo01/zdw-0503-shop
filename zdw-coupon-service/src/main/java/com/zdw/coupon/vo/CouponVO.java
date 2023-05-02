@@ -1,4 +1,4 @@
-package com.zdw.coupon.vo.vo;
+package com.zdw.coupon.vo;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -7,44 +7,28 @@ import lombok.Data;
 import java.math.BigDecimal;
 import java.util.Date;
 
-/**
- * <p>
- * 
- * </p>
- *
- *
- * @since 2021-02-07
- */
+
 @Data
-public class CouponRecordVO {
+public class CouponVO {
 
 
+    /**
+     * id
+     */
     private Long id;
 
     /**
-     * 优惠券id
+     * 优惠卷类型[NEW_USER注册赠券，TASK任务卷，PROMOTION促销劵]
      */
-    @JsonProperty("coupon_id")
-    private Long couponId;
+    private String category;
 
 
-    /**
-     * 使用状态  可用 NEW,已使用USED,过期 EXPIRED;
-     */
-    @JsonProperty("use_state")
-    private String useState;
 
     /**
-     * 用户id
+     * 优惠券图片
      */
-    @JsonProperty("user_id")
-    private Long userId;
-
-    /**
-     * 用户昵称
-     */
-    @JsonProperty("user_name")
-    private String userName;
+    @JsonProperty("coupon_img")
+    private String couponImg;
 
     /**
      * 优惠券标题
@@ -53,35 +37,47 @@ public class CouponRecordVO {
     private String couponTitle;
 
     /**
-     * 开始时间
+     * 抵扣价格
+     */
+    private BigDecimal price;
+
+    /**
+     * 每人限制张数
+     */
+    @JsonProperty("user_limit")
+    private Integer userLimit;
+
+    /**
+     * 优惠券开始有效时间
      */
     @JsonFormat(pattern = "yyyy-MM-dd hh:mm:ss",locale = "zh",timezone = "GMT+8")
     @JsonProperty("start_time")
     private Date startTime;
 
     /**
-     * 结束时间
+     * 优惠券失效时间
      */
     @JsonFormat(pattern = "yyyy-MM-dd hh:mm:ss",locale = "zh",timezone = "GMT+8")
     @JsonProperty("end_time")
     private Date endTime;
 
     /**
-     * 订单id
+     * 优惠券总量
      */
-    @JsonProperty("order_id")
-    private Long orderId;
+    @JsonProperty("publish_count")
+    private Integer publishCount;
 
     /**
-     * 抵扣价格
+     * 库存
      */
-    private BigDecimal price;
+    private Integer stock;
+
+
 
     /**
      * 满多少才可以使用
      */
     @JsonProperty("condition_price")
     private BigDecimal conditionPrice;
-
 
 }

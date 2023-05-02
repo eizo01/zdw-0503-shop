@@ -1,6 +1,7 @@
 package com.zdw.user.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.zdw.constant.CacheKey;
 import com.zdw.enums.BizCodeEnum;
 import com.zdw.enums.SendCodeEnum;
 import com.zdw.interceptor.LoginInterceptor;
@@ -21,12 +22,14 @@ import org.apache.commons.codec.digest.Md5Crypt;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Date;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 /**
  * <p>
@@ -44,6 +47,9 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, UserDO> implements 
 
     @Autowired
     private UserMapper userMapper;
+
+    @Autowired
+    private StringRedisTemplate redisTemplate;
     /**
      * 用户注册
      * * 邮箱验证码验证
@@ -104,6 +110,10 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, UserDO> implements 
     }
 
     /**
+     *  测试
+     */
+    private static final int Jwt_EXPIRED = 60 * 1000 * 60 * 24 * 70;
+    /**
      * 1、根据Mail去找有没这记录
      *      * 2、有的话，则用秘钥+用户传递的明文密码，进行加密，再和数据库的密文进行匹配
      *      *
@@ -119,14 +129,16 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, UserDO> implements 
             UserDO userDO = userDOS.get(0);
 
             String cryptPwd = Md5Crypt.md5Crypt(loginRequest.getPwd().getBytes(), userDO.getSecret());
-            if (cryptPwd.equals(userDO.getPwd())){
-                //TODO 登录成功 生成token
-                //生成token令牌
-                LoginUser userDTO = new LoginUser();
-                BeanUtils.copyProperties(userDO, userDTO);
-                String token = JWTUtil.geneJsonWebToken(userDTO);
-                return JsonData.buildSuccess(token);
-
+            if (
+                cryptPwd.equals(userDO.getPwd())){
+                    //TODO 登录成功 生成token
+                    //生成token令牌
+                    LoginUser userDTO = new LoginUser();
+                    BeanUtils.copyProperties(userDO, userDTO);
+                    String token = JWTUtil.geneJsonWebToken(userDTO);
+                    String jwt = String.format(CacheKey.Jwt,userDTO.getId()) ;
+                    redisTemplate.opsForValue().set(jwt,token,Jwt_EXPIRED, TimeUnit.MILLISECONDS);
+                    return JsonData.buildSuccess(token);
             }else{
                 return JsonData.buildCodeAndMsg(BizCodeEnum.ACCOUNT_PWD_ERROR.getCode(),BizCodeEnum.ACCOUNT_PWD_ERROR.getMessage());
 

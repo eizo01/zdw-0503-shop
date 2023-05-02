@@ -1,6 +1,5 @@
 com\zdw\user\mapper\AddressMapper.class
 com\zdw\user\controller\NotifyController.class
-com\zdw\user\interceptor\LoginInterceptor.class
 com\zdw\user\request\AddressAddReqeust.class
 com\zdw\user\service\FileService.class
 com\zdw\user\service\MailService.class
@@ -8,6 +7,7 @@ com\zdw\user\mapper\UserMapper.class
 com\zdw\user\model\UserDO.class
 com\zdw\user\service\impl\AddressServiceImpl.class
 com\zdw\user\service\impl\QiuqiImpl.class
+com\zdw\user\vo\AddressVO.class
 com\zdw\user\config\InterceptorConfig.class
 com\zdw\user\service\impl\MailServiceImpl.class
 com\zdw\user\service\NotifyService.class
@@ -17,6 +17,7 @@ com\zdw\user\UserApplication.class
 com\zdw\user\service\impl\NotifyServiceImpl.class
 com\zdw\user\config\CaptchaConfig.class
 com\zdw\user\request\UserRegisterRequest.class
+com\zdw\user\vo\UserVO.class
 com\zdw\user\service\AddressService.class
 com\zdw\user\controller\AddressController.class
 com\zdw\user\request\UserLoginRequest.class

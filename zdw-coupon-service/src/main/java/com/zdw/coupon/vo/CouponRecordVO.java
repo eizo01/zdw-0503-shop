@@ -1,4 +1,4 @@
-package com.zdw.coupon.vo.vo;
+package com.zdw.coupon.vo;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -7,28 +7,44 @@ import lombok.Data;
 import java.math.BigDecimal;
 import java.util.Date;
 
-
+/**
+ * <p>
+ * 
+ * </p>
+ *
+ *
+ * @since 2021-02-07
+ */
 @Data
-public class CouponVO {
+public class CouponRecordVO {
 
 
-    /**
-     * id
-     */
     private Long id;
 
     /**
-     * 优惠卷类型[NEW_USER注册赠券，TASK任务卷，PROMOTION促销劵]
+     * 优惠券id
      */
-    private String category;
-
+    @JsonProperty("coupon_id")
+    private Long couponId;
 
 
     /**
-     * 优惠券图片
+     * 使用状态  可用 NEW,已使用USED,过期 EXPIRED;
      */
-    @JsonProperty("coupon_img")
-    private String couponImg;
+    @JsonProperty("use_state")
+    private String useState;
+
+    /**
+     * 用户id
+     */
+    @JsonProperty("user_id")
+    private Long userId;
+
+    /**
+     * 用户昵称
+     */
+    @JsonProperty("user_name")
+    private String userName;
 
     /**
      * 优惠券标题
@@ -37,47 +53,35 @@ public class CouponVO {
     private String couponTitle;
 
     /**
-     * 抵扣价格
-     */
-    private BigDecimal price;
-
-    /**
-     * 每人限制张数
-     */
-    @JsonProperty("user_limit")
-    private Integer userLimit;
-
-    /**
-     * 优惠券开始有效时间
+     * 开始时间
      */
     @JsonFormat(pattern = "yyyy-MM-dd hh:mm:ss",locale = "zh",timezone = "GMT+8")
     @JsonProperty("start_time")
     private Date startTime;
 
     /**
-     * 优惠券失效时间
+     * 结束时间
      */
     @JsonFormat(pattern = "yyyy-MM-dd hh:mm:ss",locale = "zh",timezone = "GMT+8")
     @JsonProperty("end_time")
     private Date endTime;
 
     /**
-     * 优惠券总量
+     * 订单id
      */
-    @JsonProperty("publish_count")
-    private Integer publishCount;
+    @JsonProperty("order_id")
+    private Long orderId;
 
     /**
-     * 库存
+     * 抵扣价格
      */
-    private Integer stock;
-
-
+    private BigDecimal price;
 
     /**
      * 满多少才可以使用
      */
     @JsonProperty("condition_price")
     private BigDecimal conditionPrice;
+
 
 }
