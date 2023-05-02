@@ -23,11 +23,17 @@ import lombok.extern.slf4j.Slf4j;
 
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.StringRedisTemplate;
+import org.springframework.data.redis.core.script.DefaultRedisScript;
 import org.springframework.stereotype.Service;
 
+import javax.annotation.Resource;
+import java.time.Duration;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 /**
@@ -43,7 +49,8 @@ import java.util.stream.Collectors;
 public class CouponServiceImpl extends ServiceImpl<CouponMapper, CouponDO> implements CouponService {
     @Autowired
     private CouponMapper couponMapper;
-
+    @Autowired
+    private StringRedisTemplate redisTemplate;
 
 
     @Override
@@ -82,6 +89,32 @@ public class CouponServiceImpl extends ServiceImpl<CouponMapper, CouponDO> imple
      */
     @Override
     public JsonData addCoupon(long couponId, CouponCategoryEnum category) {
+
+        String uuid = CommonUtil.generateUUID();
+        String lockKey = "lock:coupon:" + couponId;
+        Boolean lockFlag = redisTemplate.opsForValue().setIfAbsent(lockKey, uuid, Duration.ofSeconds(30));
+        if (lockFlag){
+            //加锁成功
+            log.info("加锁：{}",lockFlag);
+            try {
+                //执行业务  TODO
+            }finally {
+                String script = "if redis.call('get',KEYS[1]) == ARGV[1] then return redis.call('del',KEYS[1]) else return 0 end";
+
+                Integer result = redisTemplate.execute(new DefaultRedisScript<>(script, Integer.class), Arrays.asList(lockKey), uuid);
+                log.info("解锁：{}",result);
+            }
+        }else {
+
+                //加锁失败，睡眠100毫秒，自旋重试
+                try {
+                    TimeUnit.MILLISECONDS.sleep(100L);
+                } catch (InterruptedException e) { }
+                return addCoupon( couponId, category);
+            }
+
+
+
         LoginUser loginUser = LoginInterceptor.threadLocal.get();
 
         CouponDO couponDO = couponMapper.selectOne(new QueryWrapper<CouponDO>()
@@ -129,7 +162,7 @@ public class CouponServiceImpl extends ServiceImpl<CouponMapper, CouponDO> imple
         BeanUtils.copyProperties(couponDO,couponVO);
         return couponVO;
     }
-    @Autowired
+    @Resource
     private CouponRecordMapper couponRecordMapper;
 
     /**
