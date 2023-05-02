@@ -21,6 +21,8 @@ import com.zdw.util.CommonUtil;
 import com.zdw.util.JsonData;
 import lombok.extern.slf4j.Slf4j;
 
+import org.redisson.api.RLock;
+import org.redisson.api.RedissonClient;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.StringRedisTemplate;
@@ -75,7 +77,8 @@ public class CouponServiceImpl extends ServiceImpl<CouponMapper, CouponDO> imple
 
         return pageMap;
     }
-
+    @Autowired
+    private RedissonClient redissonClient;
 
     /**
      * 领卷接口
@@ -92,63 +95,49 @@ public class CouponServiceImpl extends ServiceImpl<CouponMapper, CouponDO> imple
 
         String uuid = CommonUtil.generateUUID();
         String lockKey = "lock:coupon:" + couponId;
-        Boolean lockFlag = redisTemplate.opsForValue().setIfAbsent(lockKey, uuid, Duration.ofSeconds(30));
-        if (lockFlag){
-            //加锁成功
-            log.info("加锁：{}",lockFlag);
-            try {
-                //执行业务  TODO
-            }finally {
-                String script = "if redis.call('get',KEYS[1]) == ARGV[1] then return redis.call('del',KEYS[1]) else return 0 end";
-
-                Integer result = redisTemplate.execute(new DefaultRedisScript<>(script, Integer.class), Arrays.asList(lockKey), uuid);
-                log.info("解锁：{}",result);
-            }
-        }else {
-
-                //加锁失败，睡眠100毫秒，自旋重试
-                try {
-                    TimeUnit.MILLISECONDS.sleep(100L);
-                } catch (InterruptedException e) { }
-                return addCoupon( couponId, category);
-            }
-
+        RLock lock = redissonClient.getLock(lockKey);
+        lock.lock();
 
 
         LoginUser loginUser = LoginInterceptor.threadLocal.get();
-
-        CouponDO couponDO = couponMapper.selectOne(new QueryWrapper<CouponDO>()
-                .eq("id",couponId)
-                .eq("category",category.name()));
-
-
-        //优惠券是否可以领取
-        this.checkCoupon(couponDO,loginUser.getId());
+        try {
+            CouponDO couponDO = couponMapper.selectOne(new QueryWrapper<CouponDO>()
+                    .eq("id",couponId)
+                    .eq("category",category.name()));
 
 
-        //构建领劵记录
-        CouponRecordDO couponRecordDO = new CouponRecordDO();
-        BeanUtils.copyProperties(couponDO,couponRecordDO);
-        couponRecordDO.setCreateTime(new Date());
-        couponRecordDO.setUseState(CouponStateEnum.NEW.name());
-        couponRecordDO.setUserId(loginUser.getId());
-        couponRecordDO.setUserName(loginUser.getName());
-        couponRecordDO.setCouponId(couponId);
-        couponRecordDO.setId(null);
+            //优惠券是否可以领取
+            this.checkCoupon(couponDO,loginUser.getId());
 
 
-        //扣减库存  TODO
-        int rows = couponMapper.reduceStock(couponId);
+            //构建领劵记录
+            CouponRecordDO couponRecordDO = new CouponRecordDO();
+            BeanUtils.copyProperties(couponDO,couponRecordDO);
+            couponRecordDO.setCreateTime(new Date());
+            couponRecordDO.setUseState(CouponStateEnum.NEW.name());
+            couponRecordDO.setUserId(loginUser.getId());
+            couponRecordDO.setUserName(loginUser.getName());
+            couponRecordDO.setCouponId(couponId);
+            couponRecordDO.setId(null);
 
-        if(rows==1){
-            //库存扣减成功才保存记录
-            couponRecordMapper.insert(couponRecordDO);
 
-        }else {
-            log.warn("发放优惠券失败:{},用户:{}",couponDO,loginUser);
+            //扣减库存  TODO
+            int rows = couponMapper.reduceStock(couponId);
 
-            throw  new BizException(BizCodeEnum.COUPON_NO_STOCK);
-        }
+            if(rows==1){
+                //库存扣减成功才保存记录
+                couponRecordMapper.insert(couponRecordDO);
+
+            }else {
+                log.warn("发放优惠券失败:{},用户:{}",couponDO,loginUser);
+
+                throw  new BizException(BizCodeEnum.COUPON_NO_STOCK);
+            }
+        }      finally {
+                lock.unlock();
+                log.info("解锁成功");
+            }
+
 
         return JsonData.buildSuccess();
     }
