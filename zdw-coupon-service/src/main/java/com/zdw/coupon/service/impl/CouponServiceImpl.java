@@ -28,6 +28,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.data.redis.core.script.DefaultRedisScript;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
 import java.time.Duration;
@@ -90,12 +91,14 @@ public class CouponServiceImpl extends ServiceImpl<CouponMapper, CouponDO> imple
      * @param category
      * @return
      */
+    @Transactional
     @Override
     public JsonData addCoupon(long couponId, CouponCategoryEnum category) {
 
         String uuid = CommonUtil.generateUUID();
         String lockKey = "lock:coupon:" + couponId;
         RLock lock = redissonClient.getLock(lockKey);
+        // 默认30s过期，有watch dog 有自动续期
         lock.lock();
 
 
@@ -123,7 +126,7 @@ public class CouponServiceImpl extends ServiceImpl<CouponMapper, CouponDO> imple
 
             //扣减库存  TODO
             int rows = couponMapper.reduceStock(couponId);
-
+            // int glag = 1 / 0; 本地事务会出现的问题
             if(rows==1){
                 //库存扣减成功才保存记录
                 couponRecordMapper.insert(couponRecordDO);
