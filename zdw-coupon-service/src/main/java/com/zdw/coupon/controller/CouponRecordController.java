@@ -2,15 +2,13 @@ package com.zdw.coupon.controller;
 
 
 import com.zdw.coupon.service.CouponRecordService;
+import com.zdw.coupon.vo.CouponRecordVO;
+import com.zdw.enums.BizCodeEnum;
 import com.zdw.util.JsonData;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
 
@@ -39,5 +37,22 @@ public class CouponRecordController {
 
         return JsonData.buildSuccess(map);
     }
+
+    /**
+     * 查询优惠券记录信息
+     * 水平权限攻击：也叫作访问控制攻击,Web应用程序接收到用户请求，修改某条数据时，没有判断数据的所属人，
+     * 或者在判断数据所属人时从用户提交的表单参数中获取了userid。
+     * 导致攻击者可以自行修改userid修改不属于自己的数据
+     * @param recordId
+     * @return
+     */
+    @ApiOperation("根据id查询优惠券记录信息")
+    @GetMapping("/detail/{record_id}")
+    public JsonData findUserCouponRecordById(@PathVariable("record_id")long recordId ){
+
+        CouponRecordVO couponRecordVO = couponRecordService.findById(recordId);
+        return  couponRecordVO == null? JsonData.buildResult(BizCodeEnum.COUPON_NO_EXITS):JsonData.buildSuccess(couponRecordVO);
+    }
+
 }
 

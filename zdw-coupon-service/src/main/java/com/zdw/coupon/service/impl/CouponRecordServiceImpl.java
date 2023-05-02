@@ -34,6 +34,8 @@ import java.util.stream.Collectors;
 public class CouponRecordServiceImpl extends ServiceImpl<CouponRecordMapper, CouponRecordDO> implements CouponRecordService {
     @Autowired
     private CouponRecordMapper couponRecordMapper;
+
+
     @Override
     public Map<String, Object> page(int page, int size) {
         LoginUser loginUser = LoginInterceptor.threadLocal.get();
@@ -47,6 +49,16 @@ public class CouponRecordServiceImpl extends ServiceImpl<CouponRecordMapper, Cou
         map.put("total_page",recordDOIPage.getPages());
         map.put("current_data",recordDOIPage.getRecords().stream().map(obj ->beanProcess(obj)).collect(Collectors.toList()));
         return map;
+    }
+
+    @Override
+    public CouponRecordVO findById(long recordId) {
+        LoginUser loginUser = LoginInterceptor.threadLocal.get();
+        CouponRecordDO recordDO = couponRecordMapper.selectOne(new QueryWrapper<CouponRecordDO>().eq("id", recordId).eq("user_id", loginUser.getId()));
+        if(recordDO == null){return null;}
+
+        CouponRecordVO couponRecordVO = beanProcess(recordDO);
+        return couponRecordVO;
     }
 
     private CouponRecordVO beanProcess(CouponRecordDO obj) {
