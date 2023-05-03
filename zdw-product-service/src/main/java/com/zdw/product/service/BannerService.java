@@ -1,7 +1,10 @@
 package com.zdw.product.service;
 
-import com.zdw.user.model.BannerDO;
-import com.baomidou.mybatisplus.extension.service.IService;
+
+import com.zdw.product.vo.BannerVO;
+
+
+import java.util.List;
 
 /**
  * <p>
@@ -11,6 +14,7 @@ import com.baomidou.mybatisplus.extension.service.IService;
  * @author zdw
  * @since 2023-05-03
  */
-public interface BannerService extends IService<BannerDO> {
+public interface BannerService  {
 
+    List<BannerVO> list();
 }

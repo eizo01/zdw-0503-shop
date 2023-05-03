@@ -1,7 +1,11 @@
 package com.zdw.product.mapper;
 
-import com.zdw.user.model.BannerDO;
+
+import com.zdw.product.model.BannerDO;
+
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+
+import java.util.List;
 
 /**
  * <p>
@@ -12,5 +16,6 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
  * @since 2023-05-03
  */
 public interface BannerMapper extends BaseMapper<BannerDO> {
+
 
 }
