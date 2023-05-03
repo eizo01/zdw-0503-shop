@@ -51,7 +51,7 @@ public class AddressController {
      * @return
      */
     @ApiOperation("根据id查找地址详情")
-    @GetMapping("/find/{address_id}")
+    @GetMapping("find/{address_id}")
     public JsonData detail(
             @ApiParam(value = "地址id",required = true)
             @PathVariable("address_id") long addressId){
@@ -78,7 +78,7 @@ public class AddressController {
      * @return
      */
     @ApiOperation("删除指定收货地址")
-    @DeleteMapping("/del/{address_id}")
+    @DeleteMapping("del/{address_id}")
     public JsonData del(
             @ApiParam(value = "地址id",required = true)
             @PathVariable("address_id")int addressId){
@@ -94,7 +94,7 @@ public class AddressController {
      * @return
      */
     @ApiOperation("查询用户的全部收货地址")
-    @GetMapping("/list")
+    @GetMapping("list")
     public JsonData findUserAllAddress(){
 
         List<AddressVO> list = addressService.listUserAllAddress();

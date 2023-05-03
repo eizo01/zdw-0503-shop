@@ -55,7 +55,7 @@ public class NotifyController {
      * @deprecated 同一个浏览器会覆盖，不同浏览器不会覆盖redis
      */
     @ApiOperation("获取图形验证码")
-    @GetMapping("getCaptcha")
+    @GetMapping("/getCaptcha")
     public void getCaptcha(HttpServletRequest request, HttpServletResponse response){
 
         String text = captchaProducer.createText();
@@ -84,7 +84,7 @@ public class NotifyController {
      * @deprecated 获取生成的验证码，然后根据邮箱地址发送验证码给用户
      */
     @ApiOperation("发送邮箱注册验证码")
-    @GetMapping("send_code")
+    @GetMapping("/send_code")
     public JsonData sendRegisterCode(@RequestParam(value = "to",required = true) String to,
                                      @RequestParam(value = "captcha",required = true) String captcha,
                                      HttpServletRequest request){

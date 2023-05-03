@@ -50,7 +50,7 @@ public class ProductDO implements Serializable {
     /**
      * 新价格
      */
-    private BigDecimal price;
+    private BigDecimal amount;
 
     /**
      * 库存

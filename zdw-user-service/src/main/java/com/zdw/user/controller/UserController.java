@@ -62,7 +62,7 @@ public class UserController {
      * @return
      */
     @ApiOperation("用户注册")
-    @PostMapping("register")
+    @PostMapping("/register")
     public JsonData register(@ApiParam("用户注册对象") @RequestBody UserRegisterRequest registerRequest){
 
         JsonData jsonData = userService.register(registerRequest);
@@ -74,7 +74,7 @@ public class UserController {
      * @return
      */
     @ApiOperation("用户登录")
-    @PostMapping("login")
+    @PostMapping("/login")
     public JsonData login(@ApiParam("用户登录对象") @RequestBody UserLoginRequest userLoginRequest){
 
 
@@ -88,7 +88,7 @@ public class UserController {
      * @return
      */
     @ApiOperation("个人信息查询")
-    @GetMapping("detail")
+    @GetMapping("/detail")
     public JsonData detail(){
 
         UserVO userVO = userService.findUserDetail();

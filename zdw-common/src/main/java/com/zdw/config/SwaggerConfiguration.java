@@ -1,7 +1,9 @@
 package com.zdw.config;
 
 
+import io.swagger.models.auth.In;
 import lombok.Data;
+
 import org.springframework.context.annotation.Bean;
 import org.springframework.http.HttpMethod;
 import org.springframework.stereotype.Component;
@@ -13,6 +15,8 @@ import springfox.documentation.spi.DocumentationType;
 import springfox.documentation.spring.web.plugins.Docket;
 
 import java.util.ArrayList;
+
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -46,7 +50,8 @@ public class SwaggerConfiguration {
                 //新版swagger3.0配置
                 .globalRequestParameters(globalReqeustParameters())
                 .globalResponses(HttpMethod.GET, getGlobalResponseMessage())
-                .globalResponses(HttpMethod.POST, getGlobalResponseMessage());
+                .globalResponses(HttpMethod.POST, getGlobalResponseMessage())
+                .securitySchemes(Arrays.asList(globalSecurityScheme()));
 
 
     }
@@ -83,6 +88,11 @@ public class SwaggerConfiguration {
                 //正则匹配请求路径，并分配到当前项目组
                 .paths(PathSelectors.ant("/admin/**"))
                 .build();
+
+    }
+
+    private SecurityScheme  globalSecurityScheme() {
+        return new ApiKey("token", "token", In.HEADER.toString());
     }
 
     /**
@@ -100,14 +110,7 @@ public class SwaggerConfiguration {
                 .required(false)
                 .build());
 
-//        parameters.add(new RequestParameterBuilder()
-//                .name("version")
-//                .description("版本号")
-//                .required(true)
-//                .in(ParameterType.HEADER)
-//                .query(q -> q.model(m -> m.scalarModel(ScalarType.STRING)))
-//                .required(false)
-//                .build());
+
         return parameters;
     }
 

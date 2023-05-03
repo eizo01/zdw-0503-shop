@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 
-@Api("购物车")
+@Api(tags = "购物车")
 @RestController
 @RequestMapping("/api/cart/v1")
 public class CartController {
@@ -24,8 +24,8 @@ public class CartController {
     private CartService cartService;
 
 
-    @ApiOperation("添加到购物车")
-    @PostMapping("add")
+    @ApiOperation("添加商品到购物车")
+    @PostMapping("/add")
     public JsonData addToCart(@ApiParam("购物项") @RequestBody CartItemRequest cartItemRequest){
 
         cartService.addToCart(cartItemRequest);
@@ -36,7 +36,7 @@ public class CartController {
 
 
     @ApiOperation("修改购物车数量")
-    @PostMapping("change")
+    @PostMapping("/change")
     public JsonData changeItemNum( @ApiParam("购物项") @RequestBody  CartItemRequest cartItemRequest){
 
         cartService.changeItemNum(cartItemRequest);
