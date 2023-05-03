@@ -10,7 +10,7 @@
 zdw-user-service --- 9001
 zdw-coupon-service --- 9002
 zdw-product-service --- 9003
- 
+zdw-product-service --- 9004
 #### 三、 UI接口文档  
 user服务接口文档： http://localhost:9001/swagger-ui/index.html#/  
   测试账号：2399492494@qq.com            密码：12345
