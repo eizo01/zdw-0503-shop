@@ -5,7 +5,9 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import java.math.BigDecimal;
 
 
-
+/**
+ *  购物项
+ */
 public class CartItemVO {
 
     /**

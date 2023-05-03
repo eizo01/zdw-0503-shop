@@ -28,6 +28,7 @@ coupon服务接口文档： http://localhost:9002/swagger-ui/index.html#/
 
 Todo：管理员添加优惠卷三种类型
 
+prouct服务接口文档：http://localhost:9003/swagger-ui/index.html#/  
 #### 四、功能介绍
 
 1. 用户微服务注册需求介绍  

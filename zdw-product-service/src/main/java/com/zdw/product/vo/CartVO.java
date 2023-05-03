@@ -6,7 +6,9 @@ import java.math.BigDecimal;
 import java.util.List;
 
 
-
+/**
+ * 购物车
+ */
 public class CartVO {
 
     /**
