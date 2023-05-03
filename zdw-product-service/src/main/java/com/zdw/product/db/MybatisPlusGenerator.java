@@ -1,4 +1,4 @@
-package com.zdw.user.db;
+package com.zdw.product.db;
 
 import com.baomidou.mybatisplus.annotation.DbType;
 import com.baomidou.mybatisplus.annotation.IdType;
@@ -27,7 +27,7 @@ public class MybatisPlusGenerator {
                 .setAuthor("zdw")
                 // 生成路径，最好使用绝对路径，window路径是不一样的
                 //TODO  TODO  TODO  TODO
-                .setOutputDir("E:\\有道云笔记\\zdw-0503-shop")
+                .setOutputDir("E:\\有道云笔记")
                 // 文件覆盖
                 .setFileOverride(true)
                 // 主键策略
@@ -55,7 +55,7 @@ public class MybatisPlusGenerator {
         dsConfig.setDbType(DbType.MYSQL)
                 .setDriverName("com.mysql.cj.jdbc.Driver")
                 //TODO  TODO  TODO  TODO
-                .setUrl("jdbc:mysql://127.0.0.1:3306/zdw_user?serverTimezone=GMT%2B8")
+                .setUrl("jdbc:mysql://127.0.0.1:3306/zdw_product?serverTimezone=GMT%2B8")
                 .setUsername("root")
                 .setPassword("123456");
 
@@ -75,7 +75,7 @@ public class MybatisPlusGenerator {
 
                 // 生成的表, 支持多表一起生成，以数组形式填写
                 //TODO  TODO  TODO  TODO
-                .setInclude("user","address");
+                .setInclude("banner","product");
 
         //4. 包名策略配置
         PackageConfig pkConfig = new PackageConfig();

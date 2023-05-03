@@ -22,10 +22,11 @@ user服务接口文档： http://localhost:9001/swagger-ui/index.html#/
 6、收货地址: 
 
 coupon服务接口文档： http://localhost:9002/swagger-ui/index.html#/  
+1、优惠卷分页：http://localhost:9002/api/coupon/v1/page_coupon
+2、领取优惠卷：http://localhost:9002/api/coupon/v1/add/promotion/{coupon_id}
+3、发放新人优惠卷：http://localhost:9002/api/coupon/v1/new_user_coupon
 
-
-
-
+Todo：管理员添加优惠卷三种类型
 
 #### 四、功能介绍
 
@@ -74,7 +75,18 @@ update coupon set stock=stock - #{num} where id = #{couponId} and stock >= #{num
 //修复了负数问题
 
 ```
- 
+ 2. coupon微服务注册需求介绍  
+添加和发送优惠卷
+添加优惠卷解决超发和超领取问题
+
+3.商品购物车微服务介绍
+* 类目
+  * 一个树状结构的系统，根据业务可以分成4-5级。如手机->智能手机->国产手机 类目，在这里面，手机是一级类目，国产手机是三级类目，也是叶子类目
+* SPU
+  * Standard Product Unit：标准化产品单元。是商品信息聚合的最小单位，是一组可复用、易检索的标准化信息的集合，该集合描述了一个产品的特性。通俗点讲，属性值、特性相同的商品就可以称为一个SPU
+  * 比如 Iphone100 就是一个SPU
+* SKU
+  * 一般指库存保有单位。库存保有单位即库存进出计量的单位， 可以是以件、盒、托盘等为单位。*SKU*是物理上不可分割的最小存货单元，在服装、鞋类商品中使用最多最普遍，买家购买、商家进货、供应商备货、工厂生产都是依据SKU进行的
 
 #### 五、服务器 
 地址110.40.169.113
