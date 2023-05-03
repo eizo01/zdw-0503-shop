@@ -1,6 +1,7 @@
 package com.zdw.product.mapper;
 
-import com.zdw.user.model.ProductDO;
+import com.zdw.product.model.ProductDO;
+
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 
 /**

@@ -79,7 +79,7 @@ public class MybatisPlusGenerator {
 
         //4. 包名策略配置
         PackageConfig pkConfig = new PackageConfig();
-        pkConfig.setParent("com.zdw.user")
+        pkConfig.setParent("com.zdw.product")
                 .setMapper("mapper")
                 .setService("service")
                 .setController("controller")

@@ -1,7 +1,10 @@
 package com.zdw.product.service;
 
-import com.zdw.user.model.ProductDO;
+import com.zdw.product.model.ProductDO;
+
 import com.baomidou.mybatisplus.extension.service.IService;
+
+import java.util.Map;
 
 /**
  * <p>
@@ -11,6 +14,7 @@ import com.baomidou.mybatisplus.extension.service.IService;
  * @author zdw
  * @since 2023-05-03
  */
-public interface ProductService extends IService<ProductDO> {
+public interface ProductService {
 
+    Map<String, Object> pageProductList(int page, int size);
 }
