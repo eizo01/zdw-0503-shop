@@ -1,6 +1,7 @@
 package com.zdw.coupon.controller;
 
 
+import com.zdw.coupon.request.NewUserCouponRequest;
 import com.zdw.coupon.service.CouponService;
 import com.zdw.enums.CouponCategoryEnum;
 import com.zdw.interceptor.LoginInterceptor;
@@ -13,6 +14,7 @@ import io.swagger.annotations.ApiParam;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+import springfox.documentation.spring.web.json.Json;
 
 import java.util.Map;
 
@@ -31,6 +33,7 @@ import java.util.Map;
 public class CouponController {
     @Autowired
     private CouponService couponService;
+
     /**
      * 促销展示分页
      * @param page
@@ -60,6 +63,20 @@ public class CouponController {
         LoginUser loginUser = LoginInterceptor.threadLocal.get();
         log.info("loginUser:{}",loginUser);
         return  couponService.addCoupon(couponId,CouponCategoryEnum.PROMOTION);
+    }
+
+    /**
+     * 新注册发放优惠卷
+     * @param newUserCouponRequest
+     * @return
+     */
+    @ApiOperation("RPC-新用户注册接口")
+    @PostMapping("/new_user_coupon")
+    public JsonData initNewUserCoupon(NewUserCouponRequest newUserCouponRequest){
+
+        return couponService.initNewUserCoupon(newUserCouponRequest);
+
+
     }
 }
 

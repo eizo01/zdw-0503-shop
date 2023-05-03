@@ -7,6 +7,7 @@ import com.zdw.coupon.mapper.CouponRecordMapper;
 import com.zdw.coupon.model.CouponDO;
 import com.zdw.coupon.mapper.CouponMapper;
 import com.zdw.coupon.model.CouponRecordDO;
+import com.zdw.coupon.request.NewUserCouponRequest;
 import com.zdw.coupon.service.CouponService;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.zdw.coupon.vo.CouponVO;
@@ -28,14 +29,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.data.redis.core.script.DefaultRedisScript;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
 import java.time.Duration;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
@@ -91,7 +90,7 @@ public class CouponServiceImpl extends ServiceImpl<CouponMapper, CouponDO> imple
      * @param category
      * @return
      */
-    @Transactional
+    @Transactional(rollbackFor=Exception.class,propagation= Propagation.REQUIRED)
     @Override
     public JsonData addCoupon(long couponId, CouponCategoryEnum category) {
 
@@ -141,6 +140,34 @@ public class CouponServiceImpl extends ServiceImpl<CouponMapper, CouponDO> imple
                 log.info("解锁成功");
             }
 
+
+        return JsonData.buildSuccess();
+    }
+
+    /**
+     * 微服务调用的时候没有传token
+     * 本地直接调用发放优惠卷方法，需要构造一个登录用户存储在threadlocal
+     * 新用户 每人领取一个
+     * @param newUserCouponRequest
+     * @return
+     */
+    @Transactional(rollbackFor=Exception.class,propagation=Propagation.REQUIRED)
+    @Override
+    public JsonData initNewUserCoupon(NewUserCouponRequest newUserCouponRequest) {
+        // 先封装用户信息
+        LoginUser loginUser = new LoginUser();
+        loginUser.setId(newUserCouponRequest.getUserId());
+        loginUser.setName(newUserCouponRequest.getName());
+
+        // 查询新用户有哪些优惠卷
+        List<CouponDO> couponDOList = couponMapper.selectList(new QueryWrapper<CouponDO>().eq(
+                "category", CouponCategoryEnum.NEW_USER.name())
+         .eq("publish", CouponPublishEnum.PUBLISH.name()));
+
+        // 遍历新注册的优惠卷 但需要注意幂等操作，把优惠卷添加到用户（账户）记录里
+        for (CouponDO couponDO : couponDOList){
+            this.addCoupon(couponDO.getId(),CouponCategoryEnum.NEW_USER);
+        }
 
         return JsonData.buildSuccess();
     }
