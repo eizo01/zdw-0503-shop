@@ -26,16 +26,15 @@ import org.redisson.api.RLock;
 import org.redisson.api.RedissonClient;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.redis.core.StringRedisTemplate;
-import org.springframework.data.redis.core.script.DefaultRedisScript;
+
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
-import java.time.Duration;
+
 import java.util.*;
-import java.util.concurrent.TimeUnit;
+
 import java.util.stream.Collectors;
 
 /**
@@ -52,7 +51,9 @@ public class CouponServiceImpl extends ServiceImpl<CouponMapper, CouponDO> imple
     @Autowired
     private CouponMapper couponMapper;
     @Autowired
-    private StringRedisTemplate redisTemplate;
+    private RedissonClient redissonClient;
+
+
 
 
     @Override
@@ -77,8 +78,8 @@ public class CouponServiceImpl extends ServiceImpl<CouponMapper, CouponDO> imple
 
         return pageMap;
     }
-    @Autowired
-    private RedissonClient redissonClient;
+
+
 
     /**
      * 领卷接口
@@ -144,6 +145,7 @@ public class CouponServiceImpl extends ServiceImpl<CouponMapper, CouponDO> imple
         return JsonData.buildSuccess();
     }
 
+
     /**
      * 微服务调用的时候没有传token
      * 本地直接调用发放优惠卷方法，需要构造一个登录用户存储在threadlocal
@@ -158,7 +160,7 @@ public class CouponServiceImpl extends ServiceImpl<CouponMapper, CouponDO> imple
         LoginUser loginUser = new LoginUser();
         loginUser.setId(newUserCouponRequest.getUserId());
         loginUser.setName(newUserCouponRequest.getName());
-
+        LoginInterceptor.threadLocal.set(loginUser);
         // 查询新用户有哪些优惠卷
         List<CouponDO> couponDOList = couponMapper.selectList(new QueryWrapper<CouponDO>().eq(
                 "category", CouponCategoryEnum.NEW_USER.name())

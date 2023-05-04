@@ -6,8 +6,10 @@ import com.zdw.enums.BizCodeEnum;
 import com.zdw.enums.SendCodeEnum;
 import com.zdw.interceptor.LoginInterceptor;
 import com.zdw.model.LoginUser;
+import com.zdw.user.fegin.CouponFeignService;
 import com.zdw.user.model.UserDO;
 import com.zdw.user.mapper.UserMapper;
+import com.zdw.user.request.NewUserCouponRequest;
 import com.zdw.user.request.UserLoginRequest;
 import com.zdw.user.request.UserRegisterRequest;
 import com.zdw.user.service.NotifyService;
@@ -148,6 +150,8 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, UserDO> implements 
             return JsonData.buildResult(BizCodeEnum.ACCOUNT_UNREGISTER);
         }
     }
+    @Autowired
+    private CouponFeignService couponFeignService;
 
     /**
      * 用户注册，初始化福利信息 TODO
@@ -155,6 +159,12 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, UserDO> implements 
      * @param userDO
      */
     private void userRegisterInitTask(UserDO userDO) {
+        NewUserCouponRequest request = new NewUserCouponRequest();
+        request.setName(userDO.getName());
+        request.setUserId(userDO.getId());
+        JsonData jsonData = couponFeignService.addNewUserCoupon(request);
+        log.info("发放新注册优惠卷:{},结果:{}",request.toString(),jsonData.toString());
+
     }
 
 
