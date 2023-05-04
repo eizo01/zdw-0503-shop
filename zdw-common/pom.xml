@@ -101,11 +101,23 @@
         </dependency>
 
 
-        <!--&lt;!&ndash; https://mvnrepository.com/artifact/com.alibaba/fastjson 引入阿里巴巴cloud后自带，TODO 可以删除这个包 &ndash;&gt;-->
+<!--        &lt;!&ndash;&lt;!&ndash; https://mvnrepository.com/artifact/com.alibaba/fastjson 引入阿里巴巴cloud后自带，TODO 可以删除这个包 &ndash;&gt;&ndash;&gt;-->
+<!--        <dependency>-->
+<!--        <groupId>com.alibaba</groupId>-->
+<!--        <artifactId>fastjson</artifactId>-->
+<!--        <version>1.2.75</version>-->
+<!--        </dependency>-->
+
+
+        <!--添加nacos客户端-->
         <dependency>
-        <groupId>com.alibaba</groupId>
-        <artifactId>fastjson</artifactId>
-        <version>1.2.75</version>
+            <groupId>com.alibaba.cloud</groupId>
+            <artifactId>spring-cloud-starter-alibaba-nacos-discovery</artifactId>
+        </dependency>
+        <!--Feign远程调用-->
+        <dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-starter-openfeign</artifactId>
         </dependency>
     </dependencies>
 
