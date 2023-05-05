@@ -1,18 +1,28 @@
 package com.zdw.order.service.impl;
 
+import com.alibaba.fastjson.TypeReference;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.zdw.enums.BizCodeEnum;
+import com.zdw.exception.BizException;
+import com.zdw.interceptor.LoginInterceptor;
+import com.zdw.model.LoginUser;
+import com.zdw.order.feign.UserFeignService;
 import com.zdw.order.model.ProductOrderDO;
 import com.zdw.order.mapper.ProductOrderMapper;
 import com.zdw.order.request.ConfirmOrderRequest;
 import com.zdw.order.request.LockProductRequest;
 import com.zdw.order.service.ProductOrderService;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.zdw.order.vo.ProductOrderAddressVO;
+import com.zdw.order.vo.ProductOrderVO;
+import com.zdw.util.CommonUtil;
 import com.zdw.util.JsonData;
 import lombok.extern.slf4j.Slf4j;
 import org.checkerframework.checker.units.qual.A;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.net.BindException;
 
 /**
  * <p>
@@ -46,10 +56,39 @@ public class ProductOrderServiceImpl extends ServiceImpl<ProductOrderMapper, Pro
      */
     @Override
     public JsonData comfirmOrder(ConfirmOrderRequest orderRequest) {
+
+        LoginUser loginUser = LoginInterceptor.threadLocal.get();
+        String  orderOutTradeNo = CommonUtil.getStringNumRandom(32);
+    // 下单之前先查询用户的地址信息
+        ProductOrderAddressVO addressVO = getUserAddress(orderRequest.getAddressId());
+        log.info("收货地址信息：{}",addressVO);
+
+        // TODO 未测试 token-bug-fegin
         return null;
     }
+    @Autowired
+    private UserFeignService userFeignService;
 
+    /**
+     * 查询地址详情
+     * @param addressId
+     * @return
+     */
+    private ProductOrderAddressVO getUserAddress(long addressId) {
+        JsonData detail = userFeignService.detail(addressId);
+        if (detail.getCode() != 0){
+            log.error("获取地址失败");
+            throw  new BizException(BizCodeEnum.ADDRESS_NO_EXITS);
+        }
+        ProductOrderAddressVO addressVO = detail.getData(new TypeReference<ProductOrderAddressVO>(){});
+        return addressVO;
+    }
 
+    /**
+     *  查询订单状态
+     * @param outTradeNo
+     * @return
+     */
     @Override
     public JsonData queryProductOrderState(String outTradeNo) {
         ProductOrderDO productOrderDO = productOrderMapper.selectOne(new QueryWrapper<ProductOrderDO>().eq("out_trade_no", outTradeNo));
