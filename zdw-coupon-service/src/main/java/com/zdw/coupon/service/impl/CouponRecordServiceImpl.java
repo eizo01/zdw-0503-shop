@@ -3,6 +3,7 @@ package com.zdw.coupon.service.impl;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.zdw.coupon.config.RabbitMQConfig;
 import com.zdw.coupon.mapper.CouponMapper;
 import com.zdw.coupon.mapper.CouponTaskMapper;
 import com.zdw.coupon.model.CouponRecordDO;
@@ -18,11 +19,13 @@ import com.zdw.enums.CouponStateEnum;
 import com.zdw.enums.StockTaskStateEnum;
 import com.zdw.exception.BizException;
 import com.zdw.interceptor.LoginInterceptor;
+import com.zdw.model.CouponRecordMessage;
 import com.zdw.model.LoginUser;
 import com.zdw.util.JsonData;
 import lombok.extern.slf4j.Slf4j;
 import org.checkerframework.checker.units.qual.A;
 import org.checkerframework.checker.units.qual.C;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -75,6 +78,10 @@ public class CouponRecordServiceImpl extends ServiceImpl<CouponRecordMapper, Cou
     }
     @Autowired
     private CouponTaskMapper couponTaskMapper;
+    @Autowired
+    private RabbitMQConfig rabbitMQConfig;
+    @Autowired
+    private RabbitTemplate rabbitTemplate;
     /**
      * 锁定优惠券
      *
@@ -106,7 +113,16 @@ public class CouponRecordServiceImpl extends ServiceImpl<CouponRecordMapper, Cou
         log.info("新增优惠券记录task insertRows={}",insertRows);
 
         if (lockcouponRecordIds.size() == insertRows && insertRows == updateRows){
-            //TODO 发送延迟消息
+            // 发送延迟消息
+            for (CouponTaskDO couponTaskDO : couponTaskDoLists) {
+                CouponRecordMessage couponRecordMessage = new CouponRecordMessage();
+                couponRecordMessage.setOutTradeNo(outTradeNo);
+                couponRecordMessage.setTaskId(couponTaskDO.getId());
+
+                rabbitTemplate.convertAndSend(rabbitMQConfig.getEventExchange(),rabbitMQConfig.getCouponReleaseDelayRoutingKey(),couponRecordMessage);
+                log.info("优惠券锁定消息发送成功:{}",couponRecordMessage.toString());
+
+            }
             return JsonData.buildSuccess();
         }else{
 
