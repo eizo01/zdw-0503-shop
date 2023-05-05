@@ -1,0 +1,29 @@
+package com.zdw.coupon;
+
+import lombok.extern.slf4j.Slf4j;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.junit4.SpringRunner;
+
+/**
+ * @Author: 曾德威
+ * @Date: 2023/5/5
+ * @Description: 欢迎访问我的个人博客:javazdw.top
+ */
+
+
+@RunWith(SpringRunner.class)
+@SpringBootTest(classes = CouponApplication.class)
+@Slf4j
+public class MQtest {
+
+@Autowired
+private RabbitTemplate rabbitTemplate;
+    @Test
+    public void sendDelayMsg(){
+        rabbitTemplate.convertAndSend("coupon.event.exchange","coupon.release.delay.routing.key","你好，优惠卷服务的延迟队列");
+    }
+}
