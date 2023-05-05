@@ -1,6 +1,7 @@
 package com.zdw.coupon.controller;
 
 
+import com.zdw.coupon.request.LockCouponRecordRequest;
 import com.zdw.coupon.service.CouponRecordService;
 import com.zdw.coupon.vo.CouponRecordVO;
 import com.zdw.enums.BizCodeEnum;
@@ -54,5 +55,11 @@ public class CouponRecordController {
         return  couponRecordVO == null? JsonData.buildResult(BizCodeEnum.COUPON_NO_EXITS):JsonData.buildSuccess(couponRecordVO);
     }
 
+
+    @ApiOperation("rpc-锁定优惠卷记录")
+    public JsonData getCouponRecordDetail(@ApiParam(value = "锁定的优惠卷请求对象") @RequestBody LockCouponRecordRequest recordRequest){
+        couponRecordService.lockCouponRecords(recordRequest);
+       return JsonData.buildSuccess();
+    }
 }
 
