@@ -5,10 +5,21 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.zdw.enums.BizCodeEnum;
+import com.zdw.enums.StockTaskStateEnum;
+import com.zdw.exception.BizException;
+import com.zdw.model.ProductMessage;
 import com.zdw.product.mapper.ProductMapper;
+import com.zdw.product.mapper.ProductTaskMapper;
 import com.zdw.product.model.ProductDO;
+import com.zdw.product.model.ProductTaskDO;
+import com.zdw.product.request.LockProductRequest;
+import com.zdw.product.request.OrderItemRequest;
 import com.zdw.product.service.ProductService;
+import com.zdw.product.service.ProductTaskService;
 import com.zdw.product.vo.ProductVO;
+import com.zdw.util.JsonData;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -16,6 +27,7 @@ import org.springframework.stereotype.Service;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 /**
@@ -27,6 +39,7 @@ import java.util.stream.Collectors;
  * @since 2023-05-03
  */
 @Service
+@Slf4j
 public class ProductServiceImpl  implements ProductService {
     @Autowired
     private ProductMapper productMapper;
@@ -79,6 +92,55 @@ public class ProductServiceImpl  implements ProductService {
         List<ProductVO> productVOList = productDOList.stream().map(obj->beanProcess(obj)).collect(Collectors.toList());
 
         return productVOList;
+    }
+    @Autowired
+    private ProductTaskMapper productTaskMapper;
+
+    /**
+     * 锁定商品库存
+     *
+     *1)遍历商品，锁定每个商品购买数量
+     *2)每一次锁定的时候，都要发送延迟消息
+     *
+     * @param lockProductRequest
+     * @return
+     */
+    @Override
+    public JsonData lockProductStock(LockProductRequest lockProductRequest) {
+        String outTradeNo = lockProductRequest.getOrderOutTradeNo();
+        List<OrderItemRequest> itemList  = lockProductRequest.getOrderItemList();
+        // 拿到每个订单中的商品id
+        List<Long> productIdList = itemList.stream().map(OrderItemRequest::getProductId).collect(Collectors.toList());
+        //批量查询商品信息
+        List<ProductVO> productsByIdBatch = this.findProductsByIdBatch(productIdList);
+        //把商品id-key 商品信息是value
+        Map<Long, ProductVO> productMapp = productsByIdBatch.stream().collect(Collectors.toMap(ProductVO::getId, Function.identity()));
+
+        for (OrderItemRequest item: itemList
+             ) {
+            int rows = productMapper.lockProductStock(item.getProductId(), item.getBuyNum());
+            if(rows != 1){
+                throw new BizException(BizCodeEnum.ORDER_CONFIRM_LOCK_PRODUCT_FAIL);
+            }else {
+                //插入商品product_task
+                ProductVO productVO = productMapp.get(item.getProductId());
+                ProductTaskDO productTaskDO = new ProductTaskDO();
+                productTaskDO.setBuyNum(item.getBuyNum());
+                productTaskDO.setLockState(StockTaskStateEnum.LOCK.name());
+                productTaskDO.setProductId(item.getProductId());
+                productTaskDO.setProductName(productVO.getTitle());
+                productTaskDO.setOutTradeNo(outTradeNo);
+                productTaskMapper.insert(productTaskDO);
+                log.info("商品库存锁定-插入商品product_task成功:{}",productTaskDO);
+
+
+
+            }
+        }
+
+
+
+        return null;
     }
 
     private ProductVO beanProcess(ProductDO obj){

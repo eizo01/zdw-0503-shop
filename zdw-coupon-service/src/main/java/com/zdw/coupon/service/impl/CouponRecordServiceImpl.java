@@ -80,6 +80,7 @@ public class CouponRecordServiceImpl extends ServiceImpl<CouponRecordMapper, Cou
     private RabbitMQConfig rabbitMQConfig;
     @Autowired
     private RabbitTemplate rabbitTemplate;
+
     /**
      * 锁定优惠券
      *

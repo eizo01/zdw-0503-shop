@@ -1,6 +1,7 @@
 package com.zdw.product.controller;
 
 
+import com.zdw.product.request.LockProductRequest;
 import com.zdw.product.service.ProductService;
 import com.zdw.product.vo.ProductVO;
 import com.zdw.util.JsonData;
@@ -50,6 +51,14 @@ public class ProductController {
 
         ProductVO productVO = productService.findDetailById(productId);
         return JsonData.buildSuccess(productVO);
+    }
+
+    @ApiOperation("商品订单锁定")
+    @PostMapping("/lock_product")
+    public JsonData lockProduct(@ApiParam("商品订单锁定")@RequestBody LockProductRequest lockProductRequest){
+        JsonData jsonData = productService.lockProductStock(lockProductRequest);
+
+        return null;
     }
 
 }

@@ -19,5 +19,9 @@
     <sql id="Base_Column_List">
         id, title, cover_img, detail, old_amount, amount, stock, create_time, lock_stock
     </sql>
+    <update id="lockProductStock">
+        <!-- 解决库存超发-->
+        update product set lock_stock = lock_stock + #{buyNum} where id = #{productId} and stock - lockstock >= #{buyNum};
+    </update>
 
 </mapper>

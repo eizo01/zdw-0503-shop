@@ -1,5 +1,6 @@
 package com.zdw.coupon;
 
+import com.zdw.model.CouponRecordMessage;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -26,4 +27,21 @@ private RabbitTemplate rabbitTemplate;
     public void sendDelayMsg(){
         rabbitTemplate.convertAndSend("coupon.event.exchange","coupon.release.delay.routing.key","你好，优惠卷服务的延迟队列");
     }
+
+    // todo 测试
+    @Test
+    public void testCouponRecordRelease(){
+
+        CouponRecordMessage message = new CouponRecordMessage();
+        message.setOutTradeNo("123456abc");
+        message.setTaskId(1L);
+
+        rabbitTemplate.convertAndSend("coupon.event.exchange","coupon.release.delay.routing.key",message);
+
+
+
+    }
+
+
+
 }

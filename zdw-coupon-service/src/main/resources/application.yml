@@ -56,6 +56,6 @@ mqconfig:
   #消息过期，进入释放死信队列的key
   coupon_release_routing_key: coupon.release.routing.key
 
-  #消息过期时间,毫秒,15s
-  ttl: 15000
+  #消息过期时间,毫秒,6分
+  ttl: 600000
 

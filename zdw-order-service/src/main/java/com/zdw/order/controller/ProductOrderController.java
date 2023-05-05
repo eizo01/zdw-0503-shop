@@ -7,6 +7,7 @@ import com.zdw.enums.ClientType;
 import com.zdw.enums.ProductOrderPayTypeEnum;
 import com.zdw.order.model.ProductOrderDO;
 import com.zdw.order.request.ConfirmOrderRequest;
+import com.zdw.order.request.LockProductRequest;
 import com.zdw.order.service.ProductOrderService;
 import com.zdw.util.JsonData;
 import io.swagger.annotations.Api;
@@ -70,6 +71,7 @@ public class ProductOrderController {
          return productOrderService.queryProductOrderState(outTradeNo);
 
     }
+
     /**
      * 把数据写到网页上
      * @param response
