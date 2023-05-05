@@ -2,8 +2,10 @@ package com.zdw.order.controller;
 
 
 import com.sun.org.apache.bcel.internal.generic.RETURN;
+import com.zdw.enums.BizCodeEnum;
 import com.zdw.enums.ClientType;
 import com.zdw.enums.ProductOrderPayTypeEnum;
+import com.zdw.order.model.ProductOrderDO;
 import com.zdw.order.request.ConfirmOrderRequest;
 import com.zdw.order.service.ProductOrderService;
 import com.zdw.util.JsonData;
@@ -62,7 +64,12 @@ public class ProductOrderController {
         }
         return jsonData;
     }
+    @ApiOperation("查询订单状态")
+    @GetMapping("/query_state")
+    public JsonData queryProductOrderState(@RequestParam("out_trade_no")String outTradeNo){
+         return productOrderService.queryProductOrderState(outTradeNo);
 
+    }
     /**
      * 把数据写到网页上
      * @param response

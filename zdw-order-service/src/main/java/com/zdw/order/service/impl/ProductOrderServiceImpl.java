@@ -1,5 +1,7 @@
 package com.zdw.order.service.impl;
 
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.zdw.enums.BizCodeEnum;
 import com.zdw.order.model.ProductOrderDO;
 import com.zdw.order.mapper.ProductOrderMapper;
 import com.zdw.order.request.ConfirmOrderRequest;
@@ -7,6 +9,8 @@ import com.zdw.order.service.ProductOrderService;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.zdw.util.JsonData;
 import lombok.extern.slf4j.Slf4j;
+import org.checkerframework.checker.units.qual.A;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 /**
@@ -20,7 +24,8 @@ import org.springframework.stereotype.Service;
 @Service
 @Slf4j
 public class ProductOrderServiceImpl extends ServiceImpl<ProductOrderMapper, ProductOrderDO> implements ProductOrderService {
-
+    @Autowired
+    private ProductOrderMapper productOrderMapper;
     /**
      * * 防重提交
      * * 用户微服务-确认收货地址
@@ -41,5 +46,17 @@ public class ProductOrderServiceImpl extends ServiceImpl<ProductOrderMapper, Pro
     @Override
     public JsonData comfirmOrder(ConfirmOrderRequest orderRequest) {
         return null;
+    }
+
+
+    @Override
+    public JsonData queryProductOrderState(String outTradeNo) {
+        ProductOrderDO productOrderDO = productOrderMapper.selectOne(new QueryWrapper<ProductOrderDO>().eq("out_trade_no", outTradeNo));
+        if (productOrderDO == null){
+            return JsonData.buildResult(BizCodeEnum.ORDER_CONFIRM_NOT_EXIST);
+        }else{
+            return JsonData.buildSuccess(productOrderDO.getState());
+        }
+
     }
 }

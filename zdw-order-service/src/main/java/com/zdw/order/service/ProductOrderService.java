@@ -16,4 +16,6 @@ import com.zdw.util.JsonData;
 public interface ProductOrderService extends IService<ProductOrderDO> {
 
     JsonData comfirmOrder(ConfirmOrderRequest confirmOrderRequest);
+
+    JsonData queryProductOrderState(String outTradeNo);
 }
