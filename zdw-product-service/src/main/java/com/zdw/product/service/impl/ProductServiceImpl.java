@@ -9,6 +9,7 @@ import com.zdw.enums.BizCodeEnum;
 import com.zdw.enums.StockTaskStateEnum;
 import com.zdw.exception.BizException;
 import com.zdw.model.ProductMessage;
+import com.zdw.product.config.RabbitMQConfig;
 import com.zdw.product.mapper.ProductMapper;
 import com.zdw.product.mapper.ProductTaskMapper;
 import com.zdw.product.model.ProductDO;
@@ -20,6 +21,8 @@ import com.zdw.product.service.ProductTaskService;
 import com.zdw.product.vo.ProductVO;
 import com.zdw.util.JsonData;
 import lombok.extern.slf4j.Slf4j;
+import org.checkerframework.checker.units.qual.A;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -95,7 +98,10 @@ public class ProductServiceImpl  implements ProductService {
     }
     @Autowired
     private ProductTaskMapper productTaskMapper;
-
+    @Autowired
+    private RabbitTemplate rabbitTemplate;
+    @Autowired
+    private RabbitMQConfig rabbitMQConfig;
     /**
      * 锁定商品库存
      *
@@ -133,14 +139,19 @@ public class ProductServiceImpl  implements ProductService {
                 productTaskMapper.insert(productTaskDO);
                 log.info("商品库存锁定-插入商品product_task成功:{}",productTaskDO);
 
+                // 发送MQ延迟消息，介绍商品库存
+                ProductMessage productMessage = new ProductMessage();
 
-
+                productMessage.setOutTradeNo(outTradeNo);
+                productMessage.setTaskId(productTaskDO.getId());
+                rabbitTemplate.convertAndSend(rabbitMQConfig.getEventExchange(),rabbitMQConfig.getStockReleaseDelayRoutingKey(),productMessage);
+                log.info("商品库存锁定信息延迟消息发送成功:{}",productMessage);
             }
         }
 
 
 
-        return null;
+        return JsonData.buildSuccess();
     }
 
     private ProductVO beanProcess(ProductDO obj){
