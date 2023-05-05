@@ -49,6 +49,8 @@ public interface ProductService {
      */
     JsonData lockProductStock(LockProductRequest lockProductRequest);
 
+    boolean releaseProductStock(ProductMessage productMessage);
+
 //    /**
 //     * 释放商品库存
 //     * @param productMessage

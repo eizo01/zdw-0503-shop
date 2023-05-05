@@ -23,5 +23,10 @@
         <!-- 解决库存超发-->
         update product set lock_stock = lock_stock + #{buyNum} where id = #{productId} and stock - lockstock >= #{buyNum};
     </update>
+    <update id="unlockProductStock">
+                update product set lock_stock = lock_stock - #{buyNum} where id = #{productId} ;
+
+
+    </update>
 
 </mapper>

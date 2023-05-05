@@ -6,10 +6,13 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.zdw.enums.BizCodeEnum;
+import com.zdw.enums.CouponStateEnum;
+import com.zdw.enums.ProductOrderStateEnum;
 import com.zdw.enums.StockTaskStateEnum;
 import com.zdw.exception.BizException;
 import com.zdw.model.ProductMessage;
 import com.zdw.product.config.RabbitMQConfig;
+import com.zdw.product.fegin.ProductOrderFeignSerivce;
 import com.zdw.product.mapper.ProductMapper;
 import com.zdw.product.mapper.ProductTaskMapper;
 import com.zdw.product.model.ProductDO;
@@ -153,7 +156,55 @@ public class ProductServiceImpl  implements ProductService {
 
         return JsonData.buildSuccess();
     }
+    @Autowired
+    private ProductOrderFeignSerivce productOrderFeignSerivce;
 
+    /**
+     * 并发 和 消费幂等性 有没有影响
+     * @param productMessage
+     * @return
+     */
+    @Override
+    public boolean releaseProductStock(ProductMessage productMessage) {
+        // 查询工作单的状态
+        ProductTaskDO taskDO = productTaskMapper.selectOne(new QueryWrapper<ProductTaskDO>().eq("id", productMessage.getTaskId()));
+        if (taskDO == null) {
+            log.warn("工作单不存在，消息体为:{}", productMessage);
+        }
+        // 订单是锁定才可以lock
+        if (taskDO.getLockState().equalsIgnoreCase(StockTaskStateEnum.LOCK.name())) {
+            // 查询订单状态
+            JsonData jsonData = productOrderFeignSerivce.queryProductOrderState(productMessage.getOutTradeNo());
+            if (jsonData.getCode() == 0) {
+                String state = jsonData.getData().toString();
+                if (ProductOrderStateEnum.NEW.name().equalsIgnoreCase(state)) {
+                    //状态是NEW新建状态，则返回给消息队，列重新投递
+                    log.warn("订单状态是NEW,返回给消息队列，重新投递:{}", productMessage);
+                    return false;
+                }
+                //如果是已经支付
+                if (ProductOrderStateEnum.PAY.name().equalsIgnoreCase(state)) {
+                    // 更新优惠卷记录状态
+                    productTaskMapper.update(taskDO, new QueryWrapper<ProductTaskDO>()
+                            .eq("id", productMessage.getTaskId()));
+                    log.info("订单已经支付，修改库存锁定工作单FINISH状态:{}", productMessage);
+                    return true;
+                }
+
+            }
+
+            //订单不存在，或者订单被取消，确认消息,修改task状态为CANCEL,恢复优惠券使用记录为NEW
+            log.warn("订单不存在，或者订单被取消，确认消息,修改task状态为CANCEL,恢复商品库存,message:{}",productMessage);
+            taskDO.setLockState(StockTaskStateEnum.CANCEL.name());
+            productTaskMapper.update(taskDO,new QueryWrapper<ProductTaskDO>().eq("id",productMessage.getTaskId()));
+            // 恢复商品库存，即锁定库存的值 减去 当前购买的值
+            int rows = productMapper.unlockProductStock(taskDO.getProductId(),taskDO.getBuyNum());
+            return true;
+        }else{
+            log.warn("工作单状态不是LOCK,state={},消息体={}",taskDO.getLockState(),productMessage);
+            return true;
+        }
+    }
     private ProductVO beanProcess(ProductDO obj){
         ProductVO productVO = new ProductVO();
         BeanUtils.copyProperties(obj,productVO);

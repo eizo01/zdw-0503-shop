@@ -13,4 +13,5 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
  */
 public interface ProductTaskMapper extends BaseMapper<ProductTaskDO> {
 
+    int unlockProductStock(Long productId, Integer buyNum);
 }

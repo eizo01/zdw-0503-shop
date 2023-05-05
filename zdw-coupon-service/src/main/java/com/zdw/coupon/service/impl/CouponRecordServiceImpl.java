@@ -146,6 +146,7 @@ public class CouponRecordServiceImpl extends ServiceImpl<CouponRecordMapper, Cou
         }
 
         if (taskDO.getLockState().equalsIgnoreCase(StockTaskStateEnum.LOCK.name())){
+            // 查询订单状态
             JsonData jsonData = productOrderFeginService.queryProductOrderState(recordMessage.getOutTradeNo());
             if (jsonData.getCode() == 0){
                 String state = jsonData.getData().toString();
