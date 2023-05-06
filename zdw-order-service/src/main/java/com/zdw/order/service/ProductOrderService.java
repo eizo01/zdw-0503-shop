@@ -1,11 +1,14 @@
 package com.zdw.order.service;
 
+import com.zdw.enums.ProductOrderPayTypeEnum;
 import com.zdw.model.OrderMessage;
 import com.zdw.order.model.ProductOrderDO;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.zdw.order.request.ConfirmOrderRequest;
 import com.zdw.order.request.LockProductRequest;
 import com.zdw.util.JsonData;
+
+import java.util.Map;
 
 /**
  * <p>
@@ -27,14 +30,14 @@ public interface ProductOrderService extends IService<ProductOrderDO> {
      * @return
      */
     boolean closePeoductOrder(OrderMessage orderMessage);
-    //      /**
-    //     * 支付结果回调通知
-    //     * @param alipay
-    //     * @param paramsMap
-    //     * @return
-    //     */
-    //    JsonData handlerOrderCallbackMsg(ProductOrderPayTypeEnum alipay, Map<String, String> paramsMap);
-    //
+          /**
+         * 支付结果回调通知
+         * @param alipay
+         * @param paramsMap
+         * @return
+         */
+        JsonData handlerOrderCallbackMsg(ProductOrderPayTypeEnum alipay, Map<String, String> paramsMap);
+
     //
     //    /**
     //     * 分页查询我的订单列表

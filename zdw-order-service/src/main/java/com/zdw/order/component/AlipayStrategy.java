@@ -28,7 +28,11 @@ public class AlipayStrategy implements PayStrategy {
     @Autowired
     private PayUrlConfig payUrlConfig;
 
-
+    /**
+     * 支付宝支付下单
+     * @param payInfoVO
+     * @return
+     */
     @Override
     public String unifiedorder(PayInfoVO payInfoVO) {
 

@@ -1,9 +1,9 @@
 server:
-  port: 9004
+  port: 8080
 
 spring:
   application:
-    name: zdw-coupon-service
+    name: zdw-order-service
   cloud:
     nacos:
       discovery:
@@ -62,7 +62,7 @@ mqconfig:
 ##支付宝配置
 alipay:
   #支付成功的跳转页面
-  success_return_url: https://xdclass.net
+  success_return_url: https://javazdw.top
 
   #支付宝通知回调接口, 蚂蚁金服开放平台应用后台也需要配置对应的地址
-  callback_url: http://localhost:9004/order-server/api/callback/order/v1/alipay
+  callback_url: http://1iq8kvafk97v.ngrok.xiaomiqiu123.top/api/callback/order/v1/alipay

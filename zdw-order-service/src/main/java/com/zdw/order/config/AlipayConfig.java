@@ -9,7 +9,7 @@ import org.springframework.context.annotation.Configuration;
  * @Date: 2023/5/6
  * @Description: 欢迎访问我的个人博客:javazdw.top
  */
-@Configuration
+
 public class AlipayConfig {
 
     /**
