@@ -57,12 +57,14 @@ prouct服务接口文档：http://localhost:9003/swagger-ui/index.html#/
    * 扣减存储为负数，超发优惠券   
    * 造成资损  
    原sql  
-    ```sql
-      update coupon set stock = stock - 1 where id = #{couponId} 
-   ```
    ```sql
-   update coupon set stock = stock - 1 where id = #{couponId} and stock > 0
+update coupon set stock = stock - 1 where id = #{couponId} 
+   ```
+
+```sql
+update coupon set stock = stock - 1 where id = #{couponId} and stock > 0
 ```
+
 解决超发问题
 优惠卷业务只需要扣一条  
 * 如果数据库不止扣损一条的话，用这个解决
@@ -98,7 +100,7 @@ update coupon set stock=stock - #{num} where id = #{couponId} and stock >= #{num
       思考： * 如何保证消息不会重复消费-幂等处理
             * 多个消息并发情况下是否需要加锁
       测试
-      
+解决token 传递问题  fegin      
       
 #### 五、服务器 
 地址110.40.169.113

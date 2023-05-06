@@ -2,6 +2,7 @@ package com.zdw.product.controller;
 
 import com.zdw.product.request.CartItemRequest;
 import com.zdw.product.service.CartService;
+import com.zdw.product.vo.CartItemVO;
 import com.zdw.product.vo.CartVO;
 import com.zdw.util.JsonData;
 import io.swagger.annotations.Api;
@@ -75,24 +76,24 @@ public class CartController {
         cartService.deleteItem(productId);
         return JsonData.buildSuccess();
     }
-//
-//
-//    /**
-//     * 用于订单服务，确认订单，获取对应的商品项详情信息
-//     *
-//     * 会清空购物车的商品数据
-//     * @param productIdList
-//     * @return
-//     */
-//    @ApiOperation("获取对应订单的商品信息")
-//    @PostMapping("confirm_order_cart_items")
-//    public JsonData confirmOrderCartItems(@ApiParam("商品id列表") @RequestBody List<Long> productIdList){
-//
-//        List<CartItemVO> cartItemVOList = cartService.confirmOrderCartItems(productIdList);
-//
-//        return JsonData.buildSuccess(cartItemVOList);
-//
-//    }
+
+
+    /**
+     * 用于订单服务，确认订单，获取对应的商品项详情信息
+     *
+     * 会清空购物车的商品数据
+     * @param productIdList
+     * @return
+     */
+    @ApiOperation("获取对应订单的商品信息")
+    @PostMapping("confirm_order_cart_items")
+    public JsonData confirmOrderCartItems(@ApiParam("商品id列表") @RequestBody List<Long> productIdList){
+        // 购物项
+        List<CartItemVO> cartItemVOList = cartService.confirmOrderCartItems(productIdList);
+
+        return JsonData.buildSuccess(cartItemVOList);
+
+    }
 
 
 

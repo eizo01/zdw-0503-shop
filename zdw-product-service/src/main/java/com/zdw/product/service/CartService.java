@@ -1,7 +1,10 @@
 package com.zdw.product.service;
 
 import com.zdw.product.request.CartItemRequest;
+import com.zdw.product.vo.CartItemVO;
 import com.zdw.product.vo.CartVO;
+
+import java.util.List;
 
 /**
  * @Author: 曾德威
@@ -21,4 +24,6 @@ public interface CartService {
     CartVO getMyCart();
 
     void deleteItem(long productId);
+
+    List<CartItemVO> confirmOrderCartItems(List<Long> productIdList);
 }

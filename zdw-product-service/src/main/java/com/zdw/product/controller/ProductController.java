@@ -58,8 +58,10 @@ public class ProductController {
     public JsonData lockProduct(@ApiParam("商品订单锁定")@RequestBody LockProductRequest lockProductRequest){
         JsonData jsonData = productService.lockProductStock(lockProductRequest);
 
-        return null;
+        return jsonData;
     }
+
+
 
 }
 

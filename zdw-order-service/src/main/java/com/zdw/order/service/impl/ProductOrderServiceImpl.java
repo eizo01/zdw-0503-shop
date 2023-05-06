@@ -6,6 +6,7 @@ import com.zdw.enums.BizCodeEnum;
 import com.zdw.exception.BizException;
 import com.zdw.interceptor.LoginInterceptor;
 import com.zdw.model.LoginUser;
+import com.zdw.order.feign.ProductFeignService;
 import com.zdw.order.feign.UserFeignService;
 import com.zdw.order.model.ProductOrderDO;
 import com.zdw.order.mapper.ProductOrderMapper;
@@ -13,6 +14,7 @@ import com.zdw.order.request.ConfirmOrderRequest;
 import com.zdw.order.request.LockProductRequest;
 import com.zdw.order.service.ProductOrderService;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.zdw.order.vo.OrderItemVO;
 import com.zdw.order.vo.ProductOrderAddressVO;
 import com.zdw.order.vo.ProductOrderVO;
 import com.zdw.util.CommonUtil;
@@ -23,6 +25,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.net.BindException;
+import java.util.List;
 
 /**
  * <p>
@@ -37,6 +40,8 @@ import java.net.BindException;
 public class ProductOrderServiceImpl extends ServiceImpl<ProductOrderMapper, ProductOrderDO> implements ProductOrderService {
     @Autowired
     private ProductOrderMapper productOrderMapper;
+    @Autowired
+    private ProductFeignService productFeignService;
     /**
      * * 防重提交
      * * 用户微服务-确认收货地址
@@ -64,6 +69,14 @@ public class ProductOrderServiceImpl extends ServiceImpl<ProductOrderMapper, Pro
         log.info("收货地址信息：{}",addressVO);
 
         // TODO 未测试 token-bug-fegin
+        // 获取用户加入购物车的商品
+        List<Long> productIdList = orderRequest.getProductIdList();
+        JsonData cartItemDate = productFeignService.confirmOrderCartItem(productIdList);
+        List<OrderItemVO> orderItemVOList = (List<OrderItemVO>) cartItemDate.getData(new TypeReference<OrderItemVO>(){});
+        if (orderItemVOList == null){
+            // 购物车商品不存在
+            throw  new BizException(BizCodeEnum.ORDER_CONFIRM_CART_ITEM_NOT_EXIST);
+        }
         return null;
     }
     @Autowired

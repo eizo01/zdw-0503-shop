@@ -118,6 +118,7 @@ public class CartServiceImpl implements CartService {
 
             productIdList.add(cartItemVO.getProductId());
         }
+        // false的话就不需要设置最新价格
         if (latesPrice){
             setProductLatesPrice(cartItemVOList,productIdList);
         }
@@ -133,7 +134,8 @@ public class CartServiceImpl implements CartService {
     private void setProductLatesPrice(List<CartItemVO> cartItemVOList, List<Long> productIdList) {
         List<ProductVO> productsByIdBatch = productService.findProductsByIdBatch(productIdList);
         // 根据id分组
-        Map<Long, ProductVO> collect = productsByIdBatch.stream().collect(Collectors.toMap(ProductVO::getId, Function.identity()));
+        Map<Long, ProductVO> collect = productsByIdBatch.stream()
+                .collect(Collectors.toMap(ProductVO::getId, Function.identity()));
         // 设置商品的最新的信息 价格 标头 图片连接
         cartItemVOList.stream().forEach(item ->{
             ProductVO productVO = collect.get(item.getProductId());
@@ -159,6 +161,30 @@ public class CartServiceImpl implements CartService {
     }
 
     /**
+     * 确认购物车商品信息
+     * @param productIdList
+     * @return 全部的要购买的购物项
+     */
+    @Override
+    public List<CartItemVO> confirmOrderCartItems(List<Long> productIdList) {
+        // 获得全部的购物车的 购物项 并且更新商品的更新价格
+        List<CartItemVO> cartItemVOList = buildCartItem(true);
+        // 根据需要的商品id进行过滤 并清空对应的购物项
+        List<CartItemVO> resultList = cartItemVOList.stream().filter(obj -> {
+            if (productIdList.contains(obj.getProductId())) {
+                deleteItem(obj.getProductId());
+                return true;
+            }
+            return false;
+        }).collect(Collectors.toList());
+
+
+
+
+        return resultList;
+    }
+
+    /**
      * 得到我的购物车对象，输入key，得到空购物车
      * @return
      */
@@ -180,4 +206,6 @@ public class CartServiceImpl implements CartService {
 
         return cacheKey;
     }
+
+
 }
