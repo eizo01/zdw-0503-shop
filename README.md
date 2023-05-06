@@ -31,6 +31,8 @@ coupon服务接口文档： http://localhost:9002/swagger-ui/index.html#/
 Todo：管理员添加优惠卷三种类型
 
 prouct服务接口文档：http://localhost:9003/swagger-ui/index.html#/  
+
+order服务接口文档： http://localhost:9004/swagger-ui/index.html#/  
 #### 四、功能介绍
 
 1. 用户微服务注册需求介绍  
@@ -124,6 +126,7 @@ update coupon set stock=stock - #{num} where id = #{couponId} and stock >= #{num
 解决token 传递问题  fegin    
        创建订单  
       
+对接第三方服务的，策略和单例和工厂模式  实践
 #### 五、服务器 
 地址110.40.169.113
 部署redis ：密码是123456 接口8000 为了防止别人挖矿

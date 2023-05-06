@@ -8,6 +8,7 @@ import com.zdw.exception.BizException;
 import com.zdw.interceptor.LoginInterceptor;
 import com.zdw.model.LoginUser;
 import com.zdw.model.OrderMessage;
+import com.zdw.order.component.PayFactory;
 import com.zdw.order.config.RabbitMQConfig;
 import com.zdw.order.feign.CouponFeignSerivce;
 import com.zdw.order.feign.ProductFeignService;
@@ -63,6 +64,8 @@ public class ProductOrderServiceImpl extends ServiceImpl<ProductOrderMapper, Pro
     private RabbitTemplate rabbitTemplate;
     @Autowired
     private RabbitMQConfig rabbitMQConfig;
+    @Autowired
+    private PayFactory payFactory;
     /**
      * * 防重提交
      * * 用户微服务-确认收货地址
