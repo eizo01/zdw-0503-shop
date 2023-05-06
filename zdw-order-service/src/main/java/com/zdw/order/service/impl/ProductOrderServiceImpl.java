@@ -7,6 +7,8 @@ import com.zdw.enums.*;
 import com.zdw.exception.BizException;
 import com.zdw.interceptor.LoginInterceptor;
 import com.zdw.model.LoginUser;
+import com.zdw.model.OrderMessage;
+import com.zdw.order.config.RabbitMQConfig;
 import com.zdw.order.feign.CouponFeignSerivce;
 import com.zdw.order.feign.ProductFeignService;
 import com.zdw.order.feign.UserFeignService;
@@ -29,6 +31,7 @@ import com.zdw.util.JsonData;
 import lombok.extern.slf4j.Slf4j;
 import org.checkerframework.checker.units.qual.A;
 import org.junit.internal.requests.OrderingRequest;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -58,6 +61,10 @@ public class ProductOrderServiceImpl extends ServiceImpl<ProductOrderMapper, Pro
     private CouponFeignSerivce couponFeignSerivce;
     @Autowired
     private ProductOrderItemMapper productOrderItemMapper;
+    @Autowired
+    private RabbitTemplate rabbitTemplate;
+    @Autowired
+    private RabbitMQConfig rabbitMQConfig;
     /**
      * * 防重提交
      * * 用户微服务-确认收货地址
@@ -111,6 +118,12 @@ public class ProductOrderServiceImpl extends ServiceImpl<ProductOrderMapper, Pro
 
         // 创建订单项
         saveProductOrderImtes(orderOutTradeNo,productOrderDO.getId(),orderItemVOList);
+
+        // 发送延迟消息 用于自己关单 TODO
+        OrderMessage orderMessage = new OrderMessage();
+        orderMessage.setOutTradeNo(orderOutTradeNo);
+        rabbitTemplate.convertAndSend(rabbitMQConfig.getEventExchange(),rabbitMQConfig.getOrderCloseDelayRoutingKey(),orderMessage);
+        // TODO 支付
         return null;
     }
 
