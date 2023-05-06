@@ -13,7 +13,9 @@ import com.zdw.order.feign.UserFeignService;
 import com.zdw.order.model.ProductOrderDO;
 import com.zdw.order.mapper.ProductOrderMapper;
 import com.zdw.order.request.ConfirmOrderRequest;
+import com.zdw.order.request.LockCouponRecordRequest;
 import com.zdw.order.request.LockProductRequest;
+import com.zdw.order.request.OrderItemRequest;
 import com.zdw.order.service.ProductOrderService;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.zdw.order.vo.CouponRecordVO;
@@ -24,12 +26,15 @@ import com.zdw.util.CommonUtil;
 import com.zdw.util.JsonData;
 import lombok.extern.slf4j.Slf4j;
 import org.checkerframework.checker.units.qual.A;
+import org.junit.internal.requests.OrderingRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.net.BindException;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * <p>
@@ -78,6 +83,7 @@ public class ProductOrderServiceImpl extends ServiceImpl<ProductOrderMapper, Pro
         // 获取用户加入购物车的商品信息 可以传一个订单号 解决清空购物车问题
         List<Long> productIdList = orderRequest.getProductIdList();
         JsonData cartItemDate = productFeignService.confirmOrderCartItem(productIdList);
+        //  得到每个商品信息 封装成了map
         List<OrderItemVO> orderItemVOList = (List<OrderItemVO>) cartItemDate.getData(new TypeReference<OrderItemVO>(){});
         if (orderItemVOList == null){
             // 购物车商品不存在
@@ -87,9 +93,60 @@ public class ProductOrderServiceImpl extends ServiceImpl<ProductOrderMapper, Pro
 
         // 验证价格 减去优惠卷后的真正支持的价格
         this.checkPrice(orderItemVOList,orderRequest);
+
+        //锁定优惠券
+        this.lockCouponRecords(orderRequest ,orderOutTradeNo );
+
+        //锁定库存
+        this.lockProductStocks(orderItemVOList,orderOutTradeNo);
         return null;
     }
-/**
+
+    /**
+     * 锁定商品库存
+     * @param orderItemVOList
+     * @param orderOutTradeNo
+     */
+    private void lockProductStocks(List<OrderItemVO> orderItemVOList, String orderOutTradeNo) {
+        List<OrderItemRequest> orderItemRequestList = orderItemVOList.stream().map(obj -> {
+            OrderItemRequest orderItemRequest = new OrderItemRequest();
+            orderItemRequest.setBuyNum(obj.getBuyNum());
+            orderItemRequest.setProductId(obj.getProductId());
+            return orderItemRequest;
+        }).collect(Collectors.toList());
+
+        LockProductRequest lockProductRequest = new LockProductRequest();
+        lockProductRequest.setOrderOutTradeNo(orderOutTradeNo);
+        lockProductRequest.setOrderItemList(orderItemRequestList);
+        JsonData jsonData = productFeignService.lockProductStock(lockProductRequest);
+        if(jsonData.getCode()!=0){
+            log.error("锁定商品库存失败：{}",lockProductRequest);
+            throw new BizException(BizCodeEnum.ORDER_CONFIRM_LOCK_PRODUCT_FAIL);
+        }
+    }
+    /**
+     * 锁定优惠券
+     * @param orderRequest
+     * @param orderOutTradeNo
+     */
+    private void lockCouponRecords(ConfirmOrderRequest orderRequest, String orderOutTradeNo) {
+        List<Long> lockCouponRecordIds = new ArrayList<>();
+
+        if (orderRequest.getCouponRecordId() > 0){
+            lockCouponRecordIds.add(orderRequest.getCouponRecordId());
+            LockCouponRecordRequest lockCouponRecordRequest = new LockCouponRecordRequest();
+            lockCouponRecordRequest.setLockCouponRecordIds(lockCouponRecordIds);
+            lockCouponRecordRequest.setOrderOutTradeNo(orderOutTradeNo);
+
+            JsonData jsonData = couponFeignSerivce.lockCouponRecords(lockCouponRecordRequest);
+            if(jsonData.getCode()!=0){
+                throw new BizException(BizCodeEnum.COUPON_RECORD_LOCK_FAIL);
+            }
+        }
+
+    }
+
+    /**
  * 验证价格
  * 1）统计全部商品的价格
  * 2) 获取优惠券(判断是否满足优惠券的条件)，总价再减去优惠券的价格 就是 最终的价格

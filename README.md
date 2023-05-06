@@ -11,6 +11,8 @@ zdw-user-service --- 9001
 zdw-coupon-service --- 9002
 zdw-product-service --- 9003
 zdw-product-service --- 9004
+
+DO 实体类 VO 传给前端的类 request协议 服务之间的通讯实体 前端传过来的
 #### 三、 UI接口文档  
 user服务接口文档： http://localhost:9001/swagger-ui/index.html#/  
   测试账号：2399492494@qq.com            密码：12345
