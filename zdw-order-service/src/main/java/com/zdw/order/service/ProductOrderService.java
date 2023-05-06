@@ -20,9 +20,20 @@ import java.util.Map;
  */
 public interface ProductOrderService extends IService<ProductOrderDO> {
 
-    JsonData comfirmOrder(ConfirmOrderRequest confirmOrderRequest);
+    /**
+     * 创建订单
+     * @param orderRequest
+     * @return
+     */
+    JsonData confirmOrder(ConfirmOrderRequest orderRequest);
 
+    /**
+     * 查询订单状态
+     * @param outTradeNo
+     * @return
+     */
     JsonData queryProductOrderState(String outTradeNo);
+
 
     /**
      * 队列监听 定时关单

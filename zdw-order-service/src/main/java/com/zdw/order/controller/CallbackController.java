@@ -34,7 +34,7 @@ public class CallbackController {
 
 
     /**
-     * 支付回调通知 post方式
+     * 支付回调通知 post方式 去更新订单状态
      * @param request
      * @param response
      * @return

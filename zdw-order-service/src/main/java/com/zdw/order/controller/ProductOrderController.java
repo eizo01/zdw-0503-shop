@@ -49,7 +49,7 @@ public class ProductOrderController {
     @ApiOperation("提交订单")
     @PostMapping("comfirm")
     public JsonData confrimOrder(@ApiParam("订单对象")@RequestBody ConfirmOrderRequest orderRequest, HttpServletResponse response){
-        JsonData jsonData = productOrderService.comfirmOrder(orderRequest);
+        JsonData jsonData = productOrderService.confirmOrder(orderRequest);
         if (jsonData.getCode() == 0){
             String client = orderRequest.getClientType();
             String payType = orderRequest.getPayType();

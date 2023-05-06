@@ -85,7 +85,7 @@ public class ProductOrderServiceImpl extends ServiceImpl<ProductOrderMapper, Pro
      * @return
      */
     @Override
-    public JsonData comfirmOrder(ConfirmOrderRequest orderRequest) {
+    public JsonData confirmOrder(ConfirmOrderRequest orderRequest) {
 
         LoginUser loginUser = LoginInterceptor.threadLocal.get();
         String  orderOutTradeNo = CommonUtil.getStringNumRandom(32);
@@ -391,8 +391,27 @@ public class ProductOrderServiceImpl extends ServiceImpl<ProductOrderMapper, Pro
 
     }
 
+    /**
+     * 支付通知结果更新订单状态
+     * @param payType
+     * @param paramsMap
+     * @return
+     */
     @Override
-    public JsonData handlerOrderCallbackMsg(ProductOrderPayTypeEnum alipay, Map<String, String> paramsMap) {
-        return null;
+    public JsonData handlerOrderCallbackMsg(ProductOrderPayTypeEnum payType, Map<String, String> paramsMap) {
+        if (payType.name().equalsIgnoreCase(ProductOrderPayTypeEnum.ALIPAY.name())){
+
+            //支付宝支付
+            //获取商户订单号
+            String outTradeNo = paramsMap.get("out_trade_no");
+            //交易的状态
+            String tradeStatus = paramsMap.get("trade_status");
+            if("TRADE_SUCCESS".equalsIgnoreCase(tradeStatus) || "TRADE_FINISHED".equalsIgnoreCase(tradeStatus)){
+                //更新订单状态 加了乐观锁
+                productOrderMapper.updateOrderPayState(outTradeNo,ProductOrderStateEnum.PAY.name(),ProductOrderStateEnum.NEW.name());
+                return JsonData.buildSuccess();
+            }
+        }
+        return JsonData.buildResult(BizCodeEnum.PAY_ORDER_CALLBACK_NOT_SUCCESS);
     }
 }
