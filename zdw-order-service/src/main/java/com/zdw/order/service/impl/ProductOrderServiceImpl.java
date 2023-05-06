@@ -3,6 +3,7 @@ package com.zdw.order.service.impl;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.TypeReference;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.zdw.constant.TimeConstant;
 import com.zdw.enums.*;
 import com.zdw.exception.BizException;
 import com.zdw.interceptor.LoginInterceptor;
@@ -40,6 +41,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 /**
@@ -121,12 +123,23 @@ public class ProductOrderServiceImpl extends ServiceImpl<ProductOrderMapper, Pro
         // 创建订单项
         saveProductOrderImtes(orderOutTradeNo,productOrderDO.getId(),orderItemVOList);
 
-        // 发送延迟消息 用于自己关单 TODO
+        // 发送延迟消息 用于自己关单
         OrderMessage orderMessage = new OrderMessage();
         orderMessage.setOutTradeNo(orderOutTradeNo);
         rabbitTemplate.convertAndSend(rabbitMQConfig.getEventExchange(),rabbitMQConfig.getOrderCloseDelayRoutingKey(),orderMessage);
         // TODO 支付
-        return null;
+        PayInfoVO payInfoVO = new PayInfoVO(orderOutTradeNo,productOrderDO.getPayAmount(),
+                orderRequest.getPayType(),orderRequest.getClientType(),"orderOutTradeNo","这是一个订单号", TimeConstant.ORDER_PAY_TIMEOUT_MILLS);
+
+        String payResult = payFactory.pay(payInfoVO);
+        if(StringUtils.isNotBlank(payResult)){
+            log.info("创建支付订单成功:payInfoVO={},payResult={}",payInfoVO,payResult);
+            return JsonData.buildSuccess(payResult);
+        }else {
+            log.error("创建支付订单失败:payInfoVO={},payResult={}",payInfoVO,payResult);
+            return JsonData.buildResult(BizCodeEnum.PAY_ORDER_FAIL);
+        }
+
     }
 
     /**

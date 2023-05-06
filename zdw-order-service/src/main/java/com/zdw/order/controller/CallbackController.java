@@ -48,6 +48,7 @@ public class CallbackController {
         try {
             boolean rsaCertCheckV1 = AlipaySignature.rsaCertCheckV1(paramsMap, AlipayConfig.ZFB_RUB_KEY, AlipayConfig.CHARSET, AlipayConfig.SIGN_TYPE);
             if (rsaCertCheckV1){
+                //通知结果确认成功，不然会一直通知，八次都没返回success就认为交易失败
                 JsonData jsonData = productOrderService.handlerOrderCallbackMsg(ProductOrderPayTypeEnum.ALIPAY, paramsMap);
                 if (jsonData.getCode() == 0){
                     return "success";

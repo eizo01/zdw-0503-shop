@@ -47,7 +47,7 @@ public class ProductOrderController {
     private ProductOrderService productOrderService;
 
     @ApiOperation("提交订单")
-    @PostMapping("comfirm")
+    @PostMapping("/confirm")
     public JsonData confrimOrder(@ApiParam("订单对象")@RequestBody ConfirmOrderRequest orderRequest, HttpServletResponse response){
         JsonData jsonData = productOrderService.confirmOrder(orderRequest);
         if (jsonData.getCode() == 0){
