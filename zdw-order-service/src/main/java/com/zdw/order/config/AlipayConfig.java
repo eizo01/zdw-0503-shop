@@ -1,12 +1,15 @@
 package com.zdw.order.config;
 
 import com.alipay.api.AlipayClient;
+import com.alipay.api.DefaultAlipayClient;
+import org.springframework.context.annotation.Configuration;
 
 /**
  * @Author: 曾德威
  * @Date: 2023/5/6
  * @Description: 欢迎访问我的个人博客:javazdw.top
  */
+@Configuration
 public class AlipayConfig {
 
     /**
@@ -54,5 +57,19 @@ public class AlipayConfig {
     }
 
     private volatile static AlipayClient instance = null;
+
+    // 单例模式的使用 懒加载的单例模块 双重校验
+    public static AlipayClient getInstance(){
+        if (instance == null){
+            synchronized(AlipayConfig.class){
+                if (instance == null){
+                    instance = new DefaultAlipayClient(PAY_GATEWAY,APP_ID,APP_RPI_KEY,FORMAT,CHARSET,ZFB_RUB_KEY,SIGN_TYPE);
+                }
+
+            }
+
+        }
+        return instance;
+    }
 
 }
