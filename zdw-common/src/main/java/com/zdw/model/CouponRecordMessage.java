@@ -2,10 +2,11 @@ package com.zdw.model;
 
 import lombok.Data;
 
+import java.io.Serializable;
 
 
 @Data
-public class CouponRecordMessage {
+public class CouponRecordMessage implements Serializable {
 
 
     /**

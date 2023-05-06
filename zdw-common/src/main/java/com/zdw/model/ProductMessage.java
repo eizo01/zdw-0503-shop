@@ -2,9 +2,11 @@ package com.zdw.model;
 
 import lombok.Data;
 
+import java.io.Serializable;
+
 
 @Data
-public class ProductMessage {
+public class ProductMessage implements Serializable {
 
 
     /**
