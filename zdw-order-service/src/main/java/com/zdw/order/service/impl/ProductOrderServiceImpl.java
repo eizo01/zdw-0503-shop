@@ -22,13 +22,11 @@ import com.zdw.order.request.LockProductRequest;
 import com.zdw.order.request.OrderItemRequest;
 import com.zdw.order.service.ProductOrderService;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.zdw.order.vo.CouponRecordVO;
-import com.zdw.order.vo.OrderItemVO;
-import com.zdw.order.vo.ProductOrderAddressVO;
-import com.zdw.order.vo.ProductOrderVO;
+import com.zdw.order.vo.*;
 import com.zdw.util.CommonUtil;
 import com.zdw.util.JsonData;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.checkerframework.checker.units.qual.A;
 import org.junit.internal.requests.OrderingRequest;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
@@ -348,5 +346,44 @@ public class ProductOrderServiceImpl extends ServiceImpl<ProductOrderMapper, Pro
 
     }
 
+    @Override
+    public boolean closePeoductOrder(OrderMessage orderMessage) {
 
+
+        ProductOrderDO productOrderDO = productOrderMapper.selectOne(new QueryWrapper<ProductOrderDO>().eq("out_trade_no",orderMessage.getOutTradeNo()));
+
+        if(productOrderDO == null){
+            //1、订单不存在
+            log.warn("直接确认消息，订单不存在:{}",orderMessage);
+            return true;
+        }
+        // 消息重复投递
+        if(productOrderDO.getState().equalsIgnoreCase(ProductOrderStateEnum.PAY.name())){
+            //2、已经支付
+            log.info("直接确认消息,订单已经支付:{}",orderMessage);
+            return true;
+        }
+        // 订单取消
+        //向第三方支付查询订单是否真的未支付
+//        PayInfoVO payInfoVO = new PayInfoVO();
+//        payInfoVO.setPayType(productOrderDO.getPayType());
+//        payInfoVO.setOutTradeNo(orderMessage.getOutTradeNo());
+//        = payFactory.queryPaySuccess(payInfoVO);
+        String payResult = "";
+        //结果为空，则未支付成功，本地取消订单
+        if(StringUtils.isBlank(payResult)){
+            productOrderMapper.updateOrderPayState(productOrderDO.getOutTradeNo(),ProductOrderStateEnum.CANCEL.name(),ProductOrderStateEnum.NEW.name());
+            log.info("结果为空，则未支付成功，本地取消订单:{}",orderMessage);
+            return true;
+        }else {
+            //不为空 - 支付成功，主动的把订单状态改成UI就支付，造成该原因的情况可能是支付通道回调有问题
+            log.warn("支付成功，主动的把订单状态改成UI就支付，造成该原因的情况可能是支付通道回调有问题:{}",orderMessage);
+            productOrderMapper.updateOrderPayState(productOrderDO.getOutTradeNo(),ProductOrderStateEnum.PAY.name(),ProductOrderStateEnum.NEW.name());
+            return true;
+        }
+
+
+
+
+    }
 }
