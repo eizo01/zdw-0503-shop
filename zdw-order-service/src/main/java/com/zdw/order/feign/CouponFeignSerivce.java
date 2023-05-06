@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
-@FeignClient(name = "xdclass-coupon-service")
+@FeignClient(name = "zdw-coupon-service")
 public interface CouponFeignSerivce {
 
     /**

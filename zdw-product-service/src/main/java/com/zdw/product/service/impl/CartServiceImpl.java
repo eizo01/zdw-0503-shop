@@ -79,6 +79,11 @@ public class CartServiceImpl implements CartService {
         redisTemplate.delete(cartKey);
 
     }
+
+    /**
+     * 需要注意：下单失败的时候，怎么回滚
+     * @param productId
+     */
     @Override
     public void deleteItem(long productId) {
         BoundHashOperations<String, Object, Object> myCartOps = getMyCartOps();
@@ -172,6 +177,15 @@ public class CartServiceImpl implements CartService {
         // 根据需要的商品id进行过滤 并清空对应的购物项
         List<CartItemVO> resultList = cartItemVOList.stream().filter(obj -> {
             if (productIdList.contains(obj.getProductId())) {
+                // 注意这里下单服务还没走完，我们已经清空库存了，
+                /**
+                 * 清空购物车逻辑设计方案
+                 *
+                 * * 直接调用清空-MQ延迟消息（假如订单创建失败则购物车会丢失数据）
+                 *   * 解决方案：类似库存解锁和优惠券释放一样的思路（购物车这边做）
+                 *     * 延迟消息可以1分钟或者5分钟
+                 *     * 直接查询订单是否存在即可（协议增加一个outTradeNo）
+                 */
                 deleteItem(obj.getProductId());
                 return true;
             }

@@ -38,7 +38,7 @@ public class OrderItemVO {
     private BigDecimal amount;
 
     /**
-     * 总价格，单价+数量
+     * 购买的商品全部数量 的 总价格 = 单价+数量
      */
     @JsonProperty("total_amount")
     private BigDecimal totalAmount;

@@ -22,7 +22,7 @@ import java.util.Map;
  * @since 2023-05-01
  */
 @RestController
-@RequestMapping("/couponRecordDO")
+@RequestMapping("/api/coupon_record/v1")
 public class CouponRecordController {
     @Autowired
     private CouponRecordService couponRecordService;
