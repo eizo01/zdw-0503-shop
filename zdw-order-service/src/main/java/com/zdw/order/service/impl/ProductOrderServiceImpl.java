@@ -1,17 +1,19 @@
 package com.zdw.order.service.impl;
 
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.TypeReference;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.zdw.enums.BizCodeEnum;
-import com.zdw.enums.CouponStateEnum;
+import com.zdw.enums.*;
 import com.zdw.exception.BizException;
 import com.zdw.interceptor.LoginInterceptor;
 import com.zdw.model.LoginUser;
 import com.zdw.order.feign.CouponFeignSerivce;
 import com.zdw.order.feign.ProductFeignService;
 import com.zdw.order.feign.UserFeignService;
+import com.zdw.order.mapper.ProductOrderItemMapper;
 import com.zdw.order.model.ProductOrderDO;
 import com.zdw.order.mapper.ProductOrderMapper;
+import com.zdw.order.model.ProductOrderItemDO;
 import com.zdw.order.request.ConfirmOrderRequest;
 import com.zdw.order.request.LockCouponRecordRequest;
 import com.zdw.order.request.LockProductRequest;
@@ -33,6 +35,7 @@ import org.springframework.stereotype.Service;
 import java.math.BigDecimal;
 import java.net.BindException;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -53,6 +56,8 @@ public class ProductOrderServiceImpl extends ServiceImpl<ProductOrderMapper, Pro
     private ProductFeignService productFeignService;
     @Autowired
     private CouponFeignSerivce couponFeignSerivce;
+    @Autowired
+    private ProductOrderItemMapper productOrderItemMapper;
     /**
      * * 防重提交
      * * 用户微服务-确认收货地址
@@ -99,7 +104,76 @@ public class ProductOrderServiceImpl extends ServiceImpl<ProductOrderMapper, Pro
 
         //锁定库存
         this.lockProductStocks(orderItemVOList,orderOutTradeNo);
+
+        // 创建订单 把地址 订单号 商品信息 传给订单服务
+        ProductOrderDO productOrderDO = saveProductOrder(orderRequest, loginUser, orderOutTradeNo, addressVO);
+
+
+        // 创建订单项
+        saveProductOrderImtes(orderOutTradeNo,productOrderDO.getId(),orderItemVOList);
         return null;
+    }
+
+    /**
+     * 创建订单子项
+     * @param orderOutTradeNo
+     * @param orderId
+     * @param orderItemList
+     */
+    private void saveProductOrderImtes(String orderOutTradeNo, Long orderId, List<OrderItemVO> orderItemList) {
+
+        List<ProductOrderItemDO> list = orderItemList.stream().map(
+                obj->{
+                    ProductOrderItemDO itemDO = new ProductOrderItemDO();
+                    itemDO.setBuyNum(obj.getBuyNum());
+                    itemDO.setProductId(obj.getProductId());
+                    itemDO.setProductImg(obj.getProductImg());
+                    itemDO.setProductName(obj.getProductTitle());
+
+                    itemDO.setOutTradeNo(orderOutTradeNo);
+                    itemDO.setCreateTime(new Date());
+
+                    //单价
+                    itemDO.setAmount(obj.getAmount());
+                    //总价
+                    itemDO.setTotalAmount(obj.getTotalAmount());
+                    itemDO.setProductOrderId(orderId);
+                    return itemDO;
+                }
+        ).collect(Collectors.toList());
+
+
+        productOrderItemMapper.insertBatch(list);
+    }
+
+    /**
+     * 创建订单 把地址 订单号 商品信息 传给订单服务
+     * @param orderRequest
+     * @param loginUser
+     * @param orderOutTradeNo
+     * @param addressVO
+     */
+    private ProductOrderDO saveProductOrder(ConfirmOrderRequest orderRequest, LoginUser loginUser, String orderOutTradeNo, ProductOrderAddressVO addressVO) {
+        ProductOrderDO productOrderDO = new ProductOrderDO();
+        productOrderDO.setUserId(loginUser.getId());
+        productOrderDO.setHeadImg(loginUser.getHeadImg());
+        productOrderDO.setNickname(loginUser.getName());
+
+        productOrderDO.setOutTradeNo(orderOutTradeNo);
+        productOrderDO.setCreateTime(new Date());
+        productOrderDO.setDel(0);
+        productOrderDO.setOrderType(ProductOrderTypeEnum.DAILY.name());
+        // 实际支付的价格
+        productOrderDO.setPayAmount(orderRequest.getRealPayAmount());
+        // 总价 未使用优惠卷
+        productOrderDO.setTotalAmount(orderRequest.getTotalAmount());
+        productOrderDO.setPayType(ProductOrderPayTypeEnum.valueOf(orderRequest.getPayType()).name());
+        productOrderDO.setState(ProductOrderStateEnum.NEW.name());
+
+        productOrderDO.setReceiverAddress(JSON.toJSONString(addressVO));
+
+        productOrderMapper.insert(productOrderDO);
+        return productOrderDO;
     }
 
     /**
