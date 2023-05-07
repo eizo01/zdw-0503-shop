@@ -6,9 +6,12 @@ import com.alipay.api.AlipayApiException;
 import com.alipay.api.request.AlipayTradeWapPayRequest;
 import com.alipay.api.response.AlipayTradeWapPayResponse;
 import com.sun.org.apache.bcel.internal.generic.RETURN;
+import com.zdw.constant.CacheKey;
 import com.zdw.enums.BizCodeEnum;
 import com.zdw.enums.ClientType;
 import com.zdw.enums.ProductOrderPayTypeEnum;
+import com.zdw.interceptor.LoginInterceptor;
+import com.zdw.model.LoginUser;
 import com.zdw.order.config.AlipayConfig;
 import com.zdw.order.config.PayUrlConfig;
 import com.zdw.order.model.ProductOrderDO;
@@ -23,6 +26,7 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.web.bind.annotation.*;
 
 import javax.imageio.IIOException;
@@ -32,6 +36,7 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 
 /**
  * <p>
@@ -48,6 +53,27 @@ import java.util.UUID;
 public class ProductOrderController {
     @Autowired
     private ProductOrderService productOrderService;
+
+
+
+
+    @Autowired
+    private StringRedisTemplate redisTemplate;
+
+
+    @ApiOperation("获取提交订单令牌")
+    @GetMapping("get_token")
+    public JsonData getOrderToken(){
+        LoginUser loginUser = LoginInterceptor.threadLocal.get();
+        String key = String.format(CacheKey.SUBMIT_ORDER_TOKEN_KEY,loginUser.getId());
+        String token = CommonUtil.getStringNumRandom(32);
+
+        redisTemplate.opsForValue().set(key,token,30, TimeUnit.MINUTES);
+
+        return JsonData.buildSuccess(token);
+
+
+    }
     /**
      * 分页查询我的订单列表
      * @param page
