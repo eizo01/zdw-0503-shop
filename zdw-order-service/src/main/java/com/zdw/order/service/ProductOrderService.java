@@ -6,6 +6,7 @@ import com.zdw.order.model.ProductOrderDO;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.zdw.order.request.ConfirmOrderRequest;
 import com.zdw.order.request.LockProductRequest;
+import com.zdw.order.request.RepayOrderRequest;
 import com.zdw.util.JsonData;
 
 import java.util.Map;
@@ -49,21 +50,23 @@ public interface ProductOrderService extends IService<ProductOrderDO> {
          */
         JsonData handlerOrderCallbackMsg(ProductOrderPayTypeEnum alipay, Map<String, String> paramsMap);
 
-    //
-    //    /**
-    //     * 分页查询我的订单列表
-    //     * @param page
-    //     * @param size
-    //     * @param state
-    //     * @return
-    //     */
-    //    Map<String,Object> page(int page, int size, String state);
-    //
-    //
-    //    /**
-    //     * 订单二次支付
-    //     * @param repayOrderRequest
-    //     * @return
-    //     */
-    //    JsonData repay(RepayOrderRequest repayOrderRequest);
+
+
+
+        /**
+         * 分页查询我的订单列表
+         * @param page
+         * @param size
+         * @param state
+         * @return
+         */
+        Map<String,Object> page(int page, int size, String state);
+
+
+        /**
+         * 订单二次支付
+         * @param repayOrderRequest
+         * @return
+         */
+        JsonData repay(RepayOrderRequest repayOrderRequest);
 }

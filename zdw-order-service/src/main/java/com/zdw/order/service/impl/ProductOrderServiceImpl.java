@@ -3,6 +3,8 @@ package com.zdw.order.service.impl;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.TypeReference;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.zdw.constant.TimeConstant;
 import com.zdw.enums.*;
 import com.zdw.exception.BizException;
@@ -18,10 +20,7 @@ import com.zdw.order.mapper.ProductOrderItemMapper;
 import com.zdw.order.model.ProductOrderDO;
 import com.zdw.order.mapper.ProductOrderMapper;
 import com.zdw.order.model.ProductOrderItemDO;
-import com.zdw.order.request.ConfirmOrderRequest;
-import com.zdw.order.request.LockCouponRecordRequest;
-import com.zdw.order.request.LockProductRequest;
-import com.zdw.order.request.OrderItemRequest;
+import com.zdw.order.request.*;
 import com.zdw.order.service.ProductOrderService;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.zdw.order.vo.*;
@@ -32,15 +31,14 @@ import org.apache.commons.lang3.StringUtils;
 import org.checkerframework.checker.units.qual.A;
 import org.junit.internal.requests.OrderingRequest;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import springfox.documentation.spring.web.json.Json;
 
 import java.math.BigDecimal;
 import java.net.BindException;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
@@ -127,7 +125,7 @@ public class ProductOrderServiceImpl extends ServiceImpl<ProductOrderMapper, Pro
         OrderMessage orderMessage = new OrderMessage();
         orderMessage.setOutTradeNo(orderOutTradeNo);
         rabbitTemplate.convertAndSend(rabbitMQConfig.getEventExchange(),rabbitMQConfig.getOrderCloseDelayRoutingKey(),orderMessage);
-        // TODO 支付
+        //  支付  不用做幂等性处理 ，因为通知回调改动的只是状态
         PayInfoVO payInfoVO = new PayInfoVO(orderOutTradeNo,productOrderDO.getPayAmount(),
                 orderRequest.getPayType(),orderRequest.getClientType(),"orderOutTradeNo","这是一个订单号", TimeConstant.ORDER_PAY_TIMEOUT_MILLS);
 
@@ -182,6 +180,7 @@ public class ProductOrderServiceImpl extends ServiceImpl<ProductOrderMapper, Pro
      * @param addressVO
      */
     private ProductOrderDO saveProductOrder(ConfirmOrderRequest orderRequest, LoginUser loginUser, String orderOutTradeNo, ProductOrderAddressVO addressVO) {
+        // 构建ProductOrderDO
         ProductOrderDO productOrderDO = new ProductOrderDO();
         productOrderDO.setUserId(loginUser.getId());
         productOrderDO.setHeadImg(loginUser.getHeadImg());
@@ -193,7 +192,8 @@ public class ProductOrderServiceImpl extends ServiceImpl<ProductOrderMapper, Pro
         productOrderDO.setOrderType(ProductOrderTypeEnum.DAILY.name());
         // 实际支付的价格
         productOrderDO.setPayAmount(orderRequest.getRealPayAmount());
-        // 总价 未使用优惠卷
+
+        // 总价 未使用优惠卷的价格
         productOrderDO.setTotalAmount(orderRequest.getTotalAmount());
         productOrderDO.setPayType(ProductOrderPayTypeEnum.valueOf(orderRequest.getPayType()).name());
         productOrderDO.setState(ProductOrderStateEnum.NEW.name());
@@ -248,14 +248,14 @@ public class ProductOrderServiceImpl extends ServiceImpl<ProductOrderMapper, Pro
 
     }
 
-    /**
- * 验证价格
- * 1）统计全部商品的价格
- * 2) 获取优惠券(判断是否满足优惠券的条件)，总价再减去优惠券的价格 就是 最终的价格
- *
- * @param orderItemVOList
- * @param orderRequest
- */
+        /**
+     * 验证价格
+     * 1）统计全部商品的价格
+     * 2) 获取优惠券(判断是否满足优惠券的条件)，总价再减去优惠券的价格 就是 最终的价格
+     *
+     * @param orderItemVOList
+     * @param orderRequest
+     */
     private void checkPrice(List<OrderItemVO> orderItemVOList, ConfirmOrderRequest orderRequest) {
         // 计算购物车 商品的全部总价
         BigDecimal realPayAmount = new BigDecimal("0");
@@ -363,6 +363,11 @@ public class ProductOrderServiceImpl extends ServiceImpl<ProductOrderMapper, Pro
 
     }
 
+    /**
+     * 关闭订单
+     * @param orderMessage
+     * @return
+     */
     @Override
     public boolean closePeoductOrder(OrderMessage orderMessage) {
 
@@ -412,6 +417,7 @@ public class ProductOrderServiceImpl extends ServiceImpl<ProductOrderMapper, Pro
      */
     @Override
     public JsonData handlerOrderCallbackMsg(ProductOrderPayTypeEnum payType, Map<String, String> paramsMap) {
+        //  MQ把paramsMap投递给支付宝
         if (payType.name().equalsIgnoreCase(ProductOrderPayTypeEnum.ALIPAY.name())){
 
             //支付宝支付
@@ -427,4 +433,109 @@ public class ProductOrderServiceImpl extends ServiceImpl<ProductOrderMapper, Pro
         }
         return JsonData.buildResult(BizCodeEnum.PAY_ORDER_CALLBACK_NOT_SUCCESS);
     }
+    @Autowired
+    private ProductOrderItemMapper orderItemMapper;
+
+    @Override
+    public Map<String, Object> page(int page, int size, String state) {
+
+        LoginUser loginUser = LoginInterceptor.threadLocal.get();
+        Page<ProductOrderDO> pageInfo = new Page<ProductOrderDO>();
+
+
+        IPage<ProductOrderDO> orderDOPage = null;
+    /**
+     * NEW 未支付订单,PAY已经支付订单,CANCEL超时取消订单
+     */
+        if(StringUtils.isBlank(state)){
+            // 查全部
+            orderDOPage = productOrderMapper.selectPage(pageInfo,new QueryWrapper<ProductOrderDO>().eq("user_id",loginUser.getId()));
+        }else {
+            // 支付的 或者是未支付的
+            orderDOPage = productOrderMapper.selectPage(pageInfo,new QueryWrapper<ProductOrderDO>().eq("user_id",loginUser.getId()).eq("state",state));
+        }
+
+
+        //获取订单列表
+        List<ProductOrderDO> productOrderDOList =  orderDOPage.getRecords();
+
+        List<ProductOrderVO> productOrderVOList =  productOrderDOList.stream().map(orderDO->{
+
+            List<ProductOrderItemDO> itemDOList = orderItemMapper.selectList(new QueryWrapper<ProductOrderItemDO>().eq("product_order_id",orderDO.getId()));
+
+            List<OrderItemVO> itemVOList =  itemDOList.stream().map(item->{
+                OrderItemVO itemVO = new OrderItemVO();
+                BeanUtils.copyProperties(item,itemVO);
+                return itemVO;
+            }).collect(Collectors.toList());
+
+            ProductOrderVO productOrderVO = new ProductOrderVO();
+            BeanUtils.copyProperties(orderDO,productOrderVO);
+            productOrderVO.setOrderItemList(itemVOList);
+            return productOrderVO;
+
+        }).collect(Collectors.toList());
+
+        Map<String,Object> pageMap = new HashMap<>(3);
+        pageMap.put("total_record",orderDOPage.getTotal());
+        pageMap.put("total_page",orderDOPage.getPages());
+        pageMap.put("current_data",productOrderVOList);
+
+        return pageMap;
+    }
+
+    @Override
+    public JsonData repay(RepayOrderRequest repayOrderRequest) {
+
+        LoginUser loginUser = LoginInterceptor.threadLocal.get();
+        ProductOrderDO productOrderDO = productOrderMapper.selectOne(new QueryWrapper<ProductOrderDO>().eq("out_trade_no", repayOrderRequest.getOutTradeNo())
+                .eq("user_id", loginUser.getId()));
+        log.info("订单状态:{}",productOrderDO);
+        if(productOrderDO==null){
+            return JsonData.buildResult(BizCodeEnum.PAY_ORDER_NOT_EXIST);
+        }
+
+        //订单状态不对，不是NEW状态
+        if(!productOrderDO.getState().equalsIgnoreCase(ProductOrderStateEnum.NEW.name())){
+            return JsonData.buildResult(BizCodeEnum.PAY_ORDER_STATE_ERROR);
+        }else {
+            // 二次支付需要注意下时间
+
+            //订单创建到现在的存活时间
+            long orderLiveTime = CommonUtil.getCurrentTimestamp() - productOrderDO.getCreateTime().getTime();
+            //创建订单是临界点，所以再增加1分钟多几秒，假如29分，则也不能支付了
+            orderLiveTime = orderLiveTime + 70*1000;
+            // 引申点 ： 注意二维码的生成时间 30分钟 注意用户一直停留在页面，然后再打开页面 应该要一开始打开的时间减去再次打开的时间
+
+            //大于订单超时时间，则失效
+            if(orderLiveTime>TimeConstant.ORDER_PAY_TIMEOUT_MILLS){
+                return JsonData.buildResult(BizCodeEnum.PAY_ORDER_PAY_TIMEOUT);
+            }else {
+                // 可以支付了 更新db订单的支付状态
+                productOrderMapper.update(productOrderDO,new QueryWrapper<ProductOrderDO>().eq("pay_type",repayOrderRequest.getPayType()));
+
+
+                // 总时间-存活时间 = 剩下有效时间
+                long timeOut = TimeConstant.ORDER_PAY_TIMEOUT_MILLS - orderLiveTime;
+                PayInfoVO payInfoVO = new PayInfoVO(productOrderDO.getOutTradeNo(),
+                        productOrderDO.getPayAmount(), repayOrderRequest.getPayType(),
+                        repayOrderRequest.getClientType(), productOrderDO.getOutTradeNo(), "", timeOut);
+                log.info("payInfoVO={}", payInfoVO);
+                String payResult = payFactory.pay(payInfoVO);
+                if (StringUtils.isNotBlank(payResult)) {
+                    log.info("创建二次支付订单成功:payInfoVO={},payResult={}", payInfoVO, payResult);
+                    return JsonData.buildSuccess(payResult);
+                } else {
+                    log.error("创建二次支付订单失败:payInfoVO={},payResult={}", payInfoVO, payResult);
+                    return JsonData.buildResult(BizCodeEnum.PAY_ORDER_FAIL);
+                }
+
+
+            }
+        }
+        // productOrderMapper.updateOrderPayState();
+        // 可以增加流水表  记得更新订单
+    }
+
+
 }

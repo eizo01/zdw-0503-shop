@@ -14,7 +14,9 @@ import com.zdw.order.config.PayUrlConfig;
 import com.zdw.order.model.ProductOrderDO;
 import com.zdw.order.request.ConfirmOrderRequest;
 import com.zdw.order.request.LockProductRequest;
+import com.zdw.order.request.RepayOrderRequest;
 import com.zdw.order.service.ProductOrderService;
+import com.zdw.util.CommonUtil;
 import com.zdw.util.JsonData;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -28,6 +30,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.UUID;
 
 /**
@@ -45,6 +48,27 @@ import java.util.UUID;
 public class ProductOrderController {
     @Autowired
     private ProductOrderService productOrderService;
+    /**
+     * 分页查询我的订单列表
+     * @param page
+     * @param size
+     * @param state
+     * @return
+     */
+    @ApiOperation("分页查询我的订单列表")
+    @GetMapping("page")
+    public JsonData pagePOrderList(
+            @ApiParam(value = "当前页")  @RequestParam(value = "page", defaultValue = "1") int page,
+            @ApiParam(value = "每页显示多少条") @RequestParam(value = "size", defaultValue = "10") int size,
+            @ApiParam(value = "订单状态") @RequestParam(value = "state",required = false) String  state
+    ){
+
+        Map<String,Object> pageResult = productOrderService.page(page,size,state);
+
+        return JsonData.buildSuccess(pageResult);
+
+
+    }
 
     @ApiOperation("提交订单")
     @PostMapping("/confirm")
@@ -75,6 +99,39 @@ public class ProductOrderController {
     }
 
 
+    @ApiOperation("重新支付订单")
+    @PostMapping("repay")
+    public void repay(@ApiParam("订单对象") @RequestBody RepayOrderRequest repayOrderRequest, HttpServletResponse response){
+
+        JsonData jsonData = productOrderService.repay(repayOrderRequest);
+
+        if(jsonData.getCode() == 0){
+
+            String client = repayOrderRequest.getClientType();
+            String payType = repayOrderRequest.getPayType();
+
+            //如果是支付宝网页支付，都是跳转网页，APP除外
+            if(payType.equalsIgnoreCase(ProductOrderPayTypeEnum.ALIPAY.name())){
+
+                log.info("重新支付订单成功:{}",repayOrderRequest.toString());
+
+                if(client.equalsIgnoreCase(ClientType.H5.name())){
+                    writeData(response,jsonData);
+
+                }else if(client.equalsIgnoreCase(ClientType.APP.name())){
+                    //APP SDK支付  TODO
+                }
+
+            } else if(payType.equalsIgnoreCase(ProductOrderPayTypeEnum.WECHAT.name())){
+
+                //微信支付 TODO
+            }
+
+        } else {
+            log.error("重新支付订单失败{}",jsonData.toString());
+            CommonUtil.sendJsonMessage(response,jsonData);
+        }
+    }
 
     @ApiOperation("查询订单状态")
     @GetMapping("/query_state")
@@ -85,6 +142,15 @@ public class ProductOrderController {
 
     @Autowired
     private PayUrlConfig payUrlConfig;
+
+
+
+
+
+
+
+
+
 
     /**
      * 测试支付方法
