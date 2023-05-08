@@ -19,7 +19,7 @@ public class RedissonConfiguration {
     public RedissonClient redisson() throws IOException {
         Config config = new Config();
         // 设置redis连接主机地址和端口
-        config.useSingleServer().setPassword("123456").setAddress("redis://110.40.169.113:8000");
+        config.useSingleServer().setPassword("zdw961898").setAddress("redis://110.40.169.113:8000");
         // 创建RedissonClient实例
         RedissonClient redisson = Redisson.create(config);
         return redisson;

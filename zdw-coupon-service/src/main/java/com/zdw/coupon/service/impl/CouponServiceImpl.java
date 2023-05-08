@@ -94,15 +94,16 @@ public class CouponServiceImpl extends ServiceImpl<CouponMapper, CouponDO> imple
     @Transactional(rollbackFor=Exception.class,propagation= Propagation.REQUIRED)
     @Override
     public JsonData addCoupon(long couponId, CouponCategoryEnum category) {
-
+        LoginUser loginUser = LoginInterceptor.threadLocal.get();
         String uuid = CommonUtil.generateUUID();
-        String lockKey = "lock:coupon:" + couponId;
+        //"  lock:coupon:"+couponId+userid，锁粒度更细化
+        String lockKey = "lock:coupon:" + couponId+":"+loginUser.getId();
         RLock lock = redissonClient.getLock(lockKey);
         // 默认30s过期，有watch dog 有自动续期
         lock.lock();
 
 
-        LoginUser loginUser = LoginInterceptor.threadLocal.get();
+
         try {
             CouponDO couponDO = couponMapper.selectOne(new QueryWrapper<CouponDO>()
                     .eq("id",couponId)

@@ -30,28 +30,28 @@ public class RabbitMQConfig {
     /**
      * 交换机
      */
-    @Value("${mqconfig:coupon_event_exchange}")
+    @Value("${mqconfig.coupon_event_exchange}")
     private String eventExchange;
 
 
     /**
      * 第一个队列  延迟队列，
      */
-    @Value("${mqconfig:coupon_release_delay_queue}")
+    @Value("${mqconfig.coupon_release_delay_queue}")
     private String couponReleaseDelayQueue;
 
     /**
      * 第一个队列的路由key
      * 进入队列的路由key
      */
-    @Value("${mqconfig:coupon_release_delay_routing_key}")
+    @Value("${mqconfig.coupon_release_delay_routing_key}")
     private String couponReleaseDelayRoutingKey;
 
 
     /**
      * 第二个队列，被监听恢复库存的队列
      */
-    @Value("${mqconfig:coupon_release_queue}")
+    @Value("${mqconfig.coupon_release_queue}")
     private String couponReleaseQueue;
 
     /**
@@ -59,7 +59,7 @@ public class RabbitMQConfig {
      *
      * 即进入死信队列的路由key
      */
-    @Value("${mqconfig:coupon_release_routing_key}")
+    @Value("${mqconfig.coupon_release_routing_key}")
     private String couponReleaseRoutingKey;
 
     /**

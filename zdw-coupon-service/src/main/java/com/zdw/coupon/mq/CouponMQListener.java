@@ -46,7 +46,7 @@ public class CouponMQListener {
     public void releaseCouponRecord(CouponRecordMessage recordMessage, Message message, Channel channel) throws IOException {
 
        log.info("监听到信息：releaseCouponRecord消息内容：{}",recordMessage);
-
+        // 先加锁 再执行逻辑
        long msgTag = message.getMessageProperties().getDeliveryTag();
         // 消费成功 释放我们锁定优惠卷记录
         boolean flag = couponRecordService.releaseCouponRecord(recordMessage);

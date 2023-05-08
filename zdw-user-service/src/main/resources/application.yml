@@ -12,7 +12,7 @@
 #    host: 110.40.169.113
 #    port: 5672
 #    virtual-host: /
-#    password: password
+#    password: zdw961898
 #    username: admin
 #    #开启手动确认消息
 #    listener:
@@ -26,7 +26,7 @@
 #    password: 123456
 #  redis:
 #    host: 110.40.169.113
-#    password: 123456
+#    password: zdw961898
 #    port: 8000
 #  # 邮箱
 #  mail:
