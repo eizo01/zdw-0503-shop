@@ -96,15 +96,15 @@ public class CouponServiceImpl extends ServiceImpl<CouponMapper, CouponDO> imple
     public JsonData addCoupon(long couponId, CouponCategoryEnum category) {
         LoginUser loginUser = LoginInterceptor.threadLocal.get();
         String uuid = CommonUtil.generateUUID();
-        //"  lock:coupon:"+couponId+userid，锁粒度更细化
-        String lockKey = "lock:coupon:" + couponId+":"+loginUser.getId();
-        RLock lock = redissonClient.getLock(lockKey);
-        // 默认30s过期，有watch dog 有自动续期
-        lock.lock();
+//        //"  lock:coupon:"+couponId+userid，锁粒度更细化
+//        String lockKey = "lock:coupon:" + couponId+":"+loginUser.getId();
+//        RLock lock = redissonClient.getLock(lockKey);
+//        // 默认30s过期，有watch dog 有自动续期
+//        lock.lock();
 
 
 
-        try {
+
             CouponDO couponDO = couponMapper.selectOne(new QueryWrapper<CouponDO>()
                     .eq("id",couponId)
                     .eq("category",category.name()));
@@ -136,10 +136,6 @@ public class CouponServiceImpl extends ServiceImpl<CouponMapper, CouponDO> imple
                 log.warn("发放优惠券失败:{},用户:{}",couponDO,loginUser);
 
                 throw  new BizException(BizCodeEnum.COUPON_NO_STOCK);
-            }
-        }      finally {
-                lock.unlock();
-                log.info("解锁成功");
             }
 
 

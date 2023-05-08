@@ -12,6 +12,8 @@ import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import lombok.extern.slf4j.Slf4j;
+import org.redisson.api.RLock;
+import org.redisson.api.RedissonClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import springfox.documentation.spring.web.json.Json;
@@ -50,7 +52,8 @@ public class CouponController {
         Map<String, Object> pageMap = couponService.pageCouponActivity(page, size);
         return JsonData.buildSuccess(pageMap);
     }
-
+    @Autowired
+    private RedissonClient redissonClient;
     /**
      * 领取优惠券
      *
@@ -62,7 +65,19 @@ public class CouponController {
     public JsonData addPromotionCoupon(@ApiParam(value = "优惠券id", required = true) @PathVariable("coupon_id") long couponId) {
         LoginUser loginUser = LoginInterceptor.threadLocal.get();
         log.info("loginUser:{}",loginUser);
-        return  couponService.addCoupon(couponId,CouponCategoryEnum.PROMOTION);
+        //"  lock:coupon:"+couponId+userid，锁粒度更细化
+        String lockKey = "lock:coupon:" + couponId+":"+loginUser.getId();
+        RLock lock = redissonClient.getLock(lockKey);
+        // 默认30s过期，有watch dog 有自动续期
+        lock.lock();
+        try {
+            JsonData jsonData=couponService.addCoupon(couponId,CouponCategoryEnum.PROMOTION);
+            return  jsonData;
+        }finally {
+            lock.unlock();
+            log.info("lockKey:{}解锁成功",lock);
+        }
+
     }
 
     /**

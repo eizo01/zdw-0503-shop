@@ -83,7 +83,7 @@ update coupon set stock=stock - #{num} where id = #{couponId} and stock >= #{num
 
 ```
  2. coupon微服务注册需求介绍  
-添加和发送优惠卷
+添加和发送优惠卷 事务和锁的解决
 添加优惠卷解决超发和超领取问题
 
 3.商品购物车微服务介绍
