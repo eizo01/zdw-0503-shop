@@ -141,7 +141,9 @@ public class ProductOrderServiceImpl extends ServiceImpl<ProductOrderMapper, Pro
         // 发送延迟消息 用于自己关单
         OrderMessage orderMessage = new OrderMessage();
         orderMessage.setOutTradeNo(orderOutTradeNo);
-        rabbitTemplate.convertAndSend(rabbitMQConfig.getEventExchange(),rabbitMQConfig.getOrderCloseDelayRoutingKey(),orderMessage);
+        //使用convertAndSend方式发送消息，消息默认就是持久化的.
+        rabbitTemplate.convertAndSend(rabbitMQConfig.getEventExchange(),
+                rabbitMQConfig.getOrderCloseDelayRoutingKey(),orderMessage);
         //  支付  不用做幂等性处理 ，因为通知回调改动的只是状态
         PayInfoVO payInfoVO = new PayInfoVO(orderOutTradeNo,productOrderDO.getPayAmount(),
                 orderRequest.getPayType(),orderRequest.getClientType(),"orderOutTradeNo","这是一个订单号", TimeConstant.ORDER_PAY_TIMEOUT_MILLS);
@@ -265,7 +267,7 @@ public class ProductOrderServiceImpl extends ServiceImpl<ProductOrderMapper, Pro
 
     }
 
-        /**
+    /**
      * 验证价格
      * 1）统计全部商品的价格
      * 2) 获取优惠券(判断是否满足优惠券的条件)，总价再减去优惠券的价格 就是 最终的价格

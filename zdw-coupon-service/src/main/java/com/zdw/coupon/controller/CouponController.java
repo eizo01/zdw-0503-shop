@@ -15,6 +15,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.redisson.api.RLock;
 import org.redisson.api.RedissonClient;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.web.bind.annotation.*;
 import springfox.documentation.spring.web.json.Json;
 
@@ -42,6 +43,7 @@ public class CouponController {
      * @param size
      * @return
      */
+//    @Cacheable(value = {"coupon"},key = "#root.methodName + #page+'_'+#size")
     @ApiOperation("分页查询优惠券")
     @GetMapping("/page_coupon")
     public JsonData pageCouponList(

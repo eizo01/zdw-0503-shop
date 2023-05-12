@@ -45,13 +45,16 @@ public class ProductOrderMQListener {
         try {
            boolean flag =  productOrderService.closePeoductOrder(orderMessage);
            if (flag){
-               channel.basicAck(msgTag,false);//重新入队-一个一个确认
+               //重新入队-一个一个确认
+               channel.basicAck(msgTag,false);
            }else {
-               channel.basicReject(msgTag,true);//重新入队-true
+               //重新入队-true
+               channel.basicReject(msgTag,true);
            }
         }catch (IOException e){
+            //重新入队-true
             log.error("定时关单失败:",orderMessage);
-            channel.basicReject(msgTag,true);//重新入队-true
+            channel.basicReject(msgTag,true);
         }
 
 
