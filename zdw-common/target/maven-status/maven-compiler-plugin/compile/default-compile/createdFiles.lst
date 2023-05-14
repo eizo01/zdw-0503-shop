@@ -1,4 +1,5 @@
 com\zdw\enums\ProductOrderStateEnum.class
+com\zdw\exception\SentinelBlockHandle.class
 com\zdw\enums\CouponPublishEnum.class
 com\zdw\enums\CouponStateEnum.class
 com\zdw\constant\CacheKey.class
@@ -13,6 +14,7 @@ com\zdw\model\ProductMessage.class
 com\zdw\enums\SendCodeEnum.class
 com\zdw\util\CheckUtil.class
 com\zdw\model\CouponRecordMessage.class
+com\zdw\config\CustomRedisCacheManager.class
 com\zdw\enums\BizCodeEnum.class
 com\zdw\config\MybatisPlusPageConfig.class
 com\zdw\enums\ClientType.class

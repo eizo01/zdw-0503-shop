@@ -183,8 +183,8 @@ public class CartServiceImpl implements CartService {
                  *
                  * * 直接调用清空-MQ延迟消息（假如订单创建失败则购物车会丢失数据）
                  *   * 解决方案：类似库存解锁和优惠券释放一样的思路（购物车这边做）
-                 *     * 延迟消息可以1分钟或者5分钟
-                 *     * 直接查询订单是否存在即可（协议增加一个outTradeNo）
+                 *   * 延迟消息可以1分钟或者5分钟
+                 *   *  直接查询订单是否存在即可（协议增加一个outTradeNo）
                  */
                 deleteItem(obj.getProductId());
                 return true;

@@ -10,7 +10,7 @@
 zdw-user-service --- 9001
 zdw-coupon-service --- 9002
 zdw-product-service --- 9003
-zdw-order-service --- 8080 为了内网穿透
+zdw-order-service --- 9004 为了内网穿透
 api-gateway -- 8889
 DO 实体类 VO 传给前端的类 request协议 服务之间的通讯实体 前端传过来的
 #### 三、 UI接口文档  
@@ -86,6 +86,7 @@ update coupon set stock=stock - #{num} where id = #{couponId} and stock >= #{num
 添加和发送优惠卷 事务和锁的解决
 添加优惠卷解决超发和超领取问题
 
+拉新服务： 可以采用消息队列 减少用户注册的流程
 3.商品购物车微服务介绍
 * 类目
   * 一个树状结构的系统，根据业务可以分成4-5级。如手机->智能手机->国产手机 类目，在这里面，手机是一级类目，国产手机是三级类目，也是叶子类目
@@ -94,7 +95,6 @@ update coupon set stock=stock - #{num} where id = #{couponId} and stock >= #{num
   * 比如 Iphone100 就是一个SPU
 * SKU
   * 一般指库存保有单位。库存保有单位即库存进出计量的单位， 可以是以件、盒、托盘等为单位。*SKU*是物理上不可分割的最小存货单元，在服装、鞋类商品中使用最多最普遍，买家购买、商家进货、供应商备货、工厂生产都是依据SKU进行的
-
 
 分布式事务 ： 采用rockermq  
 4、订单服务 
@@ -118,7 +118,7 @@ update coupon set stock=stock - #{num} where id = #{couponId} and stock >= #{num
 ```
      
 下单功能亮点 延迟队列mq  
-流程： 下单-优惠券记录锁定和释放功能设计 
+流程： 下单-优惠券记录锁定和释放功能设计  服务自管理:高性能的数据一致性方案-扣减库存和优惠券记录锁定设计 不采用seate
       下单-商品锁定库存功能和释放库存功能
       思考： * 如何保证消息不会重复消费-幂等处理
             * 多个消息并发情况下是否需要加锁

@@ -61,16 +61,16 @@ public class ProductOrderController {
     private StringRedisTemplate redisTemplate;
 
 
-    @ApiOperation("获取提交订单令牌")
-    @GetMapping("get_token")
-    public JsonData getOrderToken(){
-        LoginUser loginUser = LoginInterceptor.threadLocal.get();
-        String key = String.format(CacheKey.SUBMIT_ORDER_TOKEN_KEY,loginUser.getId());
-        String token = CommonUtil.getStringNumRandom(32);
+        @ApiOperation("获取提交订单令牌")
+        @GetMapping("get_token")
+        public JsonData getOrderToken(){
+            LoginUser loginUser = LoginInterceptor.threadLocal.get();
+            String key = String.format(CacheKey.SUBMIT_ORDER_TOKEN_KEY,loginUser.getId());
+            String token = CommonUtil.getStringNumRandom(32);
 
-        redisTemplate.opsForValue().set(key,token,30, TimeUnit.MINUTES);
+            redisTemplate.opsForValue().set(key,token,30, TimeUnit.MINUTES);
 
-        return JsonData.buildSuccess(token);
+            return JsonData.buildSuccess(token);
 
 
     }

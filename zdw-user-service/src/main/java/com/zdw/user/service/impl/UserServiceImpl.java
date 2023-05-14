@@ -94,15 +94,15 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, UserDO> implements 
         //账号唯一性检查 794666918@qq.com
         if (checkUnique(userDO.getMail())) {
 
-            int rows = userMapper.insert(userDO);
+        int rows = userMapper.insert(userDO);
+            UserDO user = userMapper.selectOne(new QueryWrapper<UserDO>().eq("mail", userDO.getMail()));
+            log.info(" user:{}", user.toString());
+            userDO.setId(user.getId());
+
             log.info("rows:{},注册成功:{}", rows, userDO.toString());
+        //新用户注册成功，初始化信息，发放福利等 TODO
+         userRegisterInitTask(userDO);
 
-//                    //新用户注册成功，初始化信息，发放福利等 TODO
-           userRegisterInitTask(userDO);
-
-
-            //模拟异常
-            //int b = 1/0;
 
             return JsonData.buildSuccess();
         } else {
@@ -162,6 +162,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, UserDO> implements 
         NewUserCouponRequest request = new NewUserCouponRequest();
         request.setName(userDO.getName());
         request.setUserId(userDO.getId());
+        // 可以采用消息队列
         JsonData jsonData = couponFeignService.addNewUserCoupon(request);
         log.info("发放新注册优惠卷:{},结果:{}",request.toString(),jsonData.toString());
 

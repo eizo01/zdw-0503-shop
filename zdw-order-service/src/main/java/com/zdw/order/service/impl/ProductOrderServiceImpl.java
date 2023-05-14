@@ -97,7 +97,7 @@ public class ProductOrderServiceImpl extends ServiceImpl<ProductOrderMapper, Pro
         if(StringUtils.isBlank(orderToken)){
             throw new BizException(BizCodeEnum.ORDER_CONFIRM_TOKEN_NOT_EXIST);
         }
-        //原子操作 校验令牌，删除令牌
+        //原子操作 校验令牌，删除令牌 -- 解决重复提交
         String script = "if redis.call('get',KEYS[1]) == ARGV[1] then return redis.call('del',KEYS[1]) else return 0 end";
 
         Long result = redisTemplate.execute(new DefaultRedisScript<>(script,Long.class), Arrays.asList(String.format(CacheKey.SUBMIT_ORDER_TOKEN_KEY,loginUser.getId())),orderToken);
@@ -111,6 +111,7 @@ public class ProductOrderServiceImpl extends ServiceImpl<ProductOrderMapper, Pro
         log.info("收货地址信息：{}",addressVO);
 
         // TODO 未测试 token-bug-fegin
+
         // 获取用户加入购物车的商品信息 可以传一个订单号 解决清空购物车问题
         List<Long> productIdList = orderRequest.getProductIdList();
         JsonData cartItemDate = productFeignService.confirmOrderCartItem(productIdList);

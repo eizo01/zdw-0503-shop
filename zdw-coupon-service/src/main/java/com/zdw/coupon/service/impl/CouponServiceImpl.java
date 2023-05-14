@@ -165,6 +165,7 @@ public class CouponServiceImpl extends ServiceImpl<CouponMapper, CouponDO> imple
 
         // 遍历新注册的优惠卷 但需要注意幂等操作，把优惠卷添加到用户（账户）记录里
         for (CouponDO couponDO : couponDOList){
+            // 幂等操作
             this.addCoupon(couponDO.getId(),CouponCategoryEnum.NEW_USER);
         }
 
